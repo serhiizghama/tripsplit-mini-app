@@ -20,7 +20,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "npm run build --workspace=shared && npm run typecheck --workspaces --if-present && tsc -p scripts/tsconfig.json --noEmit",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
