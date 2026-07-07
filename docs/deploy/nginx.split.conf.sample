@@ -1,0 +1,55 @@
+# Sample nginx vhost for TripSplit's Mini App subdomain.
+#
+# Placeholders to replace before use:
+#   <DOMAIN>       e.g. split.example.com  (the Mini App subdomain)
+#   <APP_ROOT>     absolute path to the deployed app dir, e.g.
+#                  /home/<deploy-user>/apps/tripsplit
+#   <API_PORT>     must match PORT in server/.env (see .env.example), e.g. 8080
+#
+# Install (owner action — see SETUP.md for the full checklist):
+#   sudo cp nginx.split.conf.sample /etc/nginx/sites-available/split.conf
+#   # edit the copy: fill in <DOMAIN>, <APP_ROOT>, <API_PORT>
+#   sudo ln -s /etc/nginx/sites-available/split.conf /etc/nginx/sites-enabled/
+#   sudo nginx -t
+#   sudo systemctl reload nginx
+#   sudo certbot --nginx -d <DOMAIN>   # obtains + wires up HTTPS, rewrites this file
+#
+# This file intentionally has no real domain/paths/ports — fill them in
+# on the server, do not commit the filled-in copy.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name <DOMAIN>;
+
+    root <APP_ROOT>/web/dist;
+    index index.html;
+
+    # Telegram Mini Apps are a single-page app: unknown paths fall back
+    # to index.html so client-side routing (Phase 2+) works on refresh.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Static assets: Vite fingerprints filenames, so cache aggressively.
+    location /assets/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    # API: reverse-proxy to the Node/Hono process managed by pm2.
+    location /api/ {
+        proxy_pass http://127.0.0.1:<API_PORT>;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # certbot --nginx will insert its own server block(s) for HTTPS
+    # (listen 443 ssl, ssl_certificate directives, and an HTTP->HTTPS
+    # redirect on this block) the first time it runs against this vhost.
+}

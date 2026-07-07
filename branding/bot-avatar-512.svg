@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!--
+    BotFather bot-profile-photo deliverable (plan §7's BotFather setup step,
+    §8's branding deliverables list) — same two-coin motif as
+    `web/src/assets/branding/logo-mark.svg`, re-centered with a wider safety
+    margin: Telegram displays bot avatars circle-cropped, so the mark's
+    furthest points stay well inside the circle inscribed in this 512x512
+    square (radius 256 from center (256,256)) rather than right at the
+    square's edges the way the in-app rounded-square mark does.
+  -->
+  <rect width="512" height="512" fill="#FFFFFF" />
+  <circle cx="196" cy="256" r="110" fill="#8FC2F5" />
+  <circle cx="196" cy="256" r="78" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.55" />
+  <circle cx="316" cy="256" r="110" fill="#3390EC" stroke="#FFFFFF" stroke-width="15" />
+  <circle cx="316" cy="256" r="78" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.55" />
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <!--
+    BotFather /newapp Mini App photo deliverable (640x360, plan §7/§8) — the
+    two-coin mark plus a wordmark, so the app is recognizable in Telegram's
+    app card/share previews (unlike the bare mark used for the bot avatar
+    and in-app header, this one carries the app name since it's the
+    "storefront" image shown before anyone has opened the app yet).
+  -->
+  <rect width="640" height="360" fill="#FFFFFF" />
+  <circle cx="110" cy="180" r="70" fill="#8FC2F5" />
+  <circle cx="110" cy="180" r="50" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.55" />
+  <circle cx="210" cy="180" r="70" fill="#3390EC" stroke="#FFFFFF" stroke-width="10" />
+  <circle cx="210" cy="180" r="50" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.55" />
+  <text x="300" y="172" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" fill="#3390EC">TripSplit</text>
+  <text x="300" y="206" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#8E8E93">Split travel expenses, together</text>
+</svg>

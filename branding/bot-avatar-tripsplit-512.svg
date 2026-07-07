@@ -1,0 +1,43 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    TripSplit bot avatar (candidate v2) — @tripsplitmoney_bot.
+    Concept: two overlapping coins = a shared expense; the front coin is split
+    down the middle into two shares. Telegram-blue field so the mark survives
+    Telegram's circle-crop and reads on a white chat background.
+    Pure vector (no <text>) so any rasterizer renders it faithfully.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4FA2FF"/>
+      <stop offset="1" stop-color="#2A73DC"/>
+    </linearGradient>
+    <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EAF2FF"/>
+    </linearGradient>
+    <clipPath id="innerClip">
+      <circle cx="316" cy="256" r="88"/>
+    </clipPath>
+  </defs>
+
+  <!-- field (Telegram circle-crops this to a disc for the avatar) -->
+  <rect x="0" y="0" width="512" height="512" rx="120" fill="url(#bg)"/>
+
+  <!-- back / ghost coin -->
+  <circle cx="192" cy="256" r="122" fill="#FFFFFF" opacity="0.34"/>
+  <circle cx="192" cy="256" r="122" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="6"/>
+
+  <!-- front coin: blue rim carves a clean gap from the back coin -->
+  <circle cx="316" cy="256" r="120" fill="url(#face)" stroke="#2A6FD6" stroke-width="12"/>
+
+  <!-- coin face split into two shares -->
+  <g clip-path="url(#innerClip)">
+    <rect x="228" y="160" width="88" height="192" fill="#C3DBFF"/>   <!-- left share  -->
+    <rect x="316" y="160" width="88" height="192" fill="#EAF3FF"/>   <!-- right share -->
+    <rect x="309" y="156" width="14" height="200" rx="7" fill="#FFFFFF"/> <!-- centre gap -->
+  </g>
+  <circle cx="316" cy="256" r="88" fill="none" stroke="#3B8CF0" stroke-opacity="0.35" stroke-width="4"/>
+
+  <!-- soft top-left sheen on the front coin for a bit of depth -->
+  <path d="M 316 150 A 106 106 0 0 0 226 206" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="8" stroke-linecap="round"/>
+</svg>
