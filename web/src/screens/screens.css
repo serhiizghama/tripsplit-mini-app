@@ -1,0 +1,519 @@
+/**
+ * Shared screen chrome for the Ant Design Mobile redesign — the brand bar,
+ * page titles, money figures, and the floating add button. Imported by the
+ * feed/balance/settings screens so they read as one system.
+ */
+
+/* Sticky trip-switcher bar at the top of a tab screen — brand mark + the
+   active trip's title/chevron + a member-count/currency subtitle, tappable
+   to open `/trips`. Same sticky/blur treatment the old static brand bar
+   used, now carrying live trip context instead of just the app name. */
+.ts-tripbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 16px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  background: rgba(244, 245, 247, 0.86);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ts-tripbar:active {
+  opacity: 0.7;
+}
+
+.ts-tripbar-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ts-tripbar-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--adm-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-tripbar-chevron {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--ts-hint);
+}
+
+.ts-tripbar-sub {
+  margin-top: 1px;
+  font-size: 12.5px;
+  color: var(--ts-hint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Standalone subtitle line under the trip-switcher bar (Feed's expense
+   count) — carries its own horizontal padding since it no longer nests
+   inside `.ts-page-head`. */
+.ts-page-sub {
+  padding: 10px 20px 4px;
+  font-size: 14px;
+  color: var(--adm-color-text-secondary);
+}
+
+/* Day-group card header (Feed): the day label on the left, that day's spend
+   subtotal (expenses only, excludes settlements) muted and right-aligned. */
+.ts-day-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ts-day-sum {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ts-hint);
+}
+
+/* --- Balance hero: the signature. Its gradient hue answers "how am I
+   doing?" — green when owed, coral when owing, blue when settled. --- */
+.ts-hero {
+  margin: 12px 16px 4px;
+  padding: 26px 22px;
+  border-radius: 20px;
+  color: #fff;
+  box-shadow: var(--ts-shadow-float);
+  position: relative;
+  overflow: hidden;
+}
+
+.ts-hero--owed {
+  background: var(--ts-hero-owed);
+}
+.ts-hero--owe {
+  background: var(--ts-hero-owe);
+}
+.ts-hero--settled {
+  background: var(--ts-hero-settled);
+}
+
+.ts-hero-eyebrow {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.92;
+}
+
+.ts-hero-amount {
+  margin-top: 6px;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.ts-hero-caption {
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: 0.86;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Money figure inside a list row's `extra`. */
+.ts-amount {
+  text-align: right;
+  line-height: 1.25;
+}
+
+.ts-amount-main {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--adm-color-text);
+}
+
+.ts-amount-sub {
+  font-size: 12px;
+  color: var(--ts-hint);
+}
+
+.ts-amount-pos {
+  color: var(--ts-positive);
+}
+.ts-amount-neg {
+  color: var(--ts-negative);
+}
+
+/* Per-person diverging net bar (Balance): a thin track with a center
+   baseline; fill grows right+green when owed, left+coral when owing, reusing
+   the hero's semantic colors. Purely a glanceable accent under the
+   paid/share description — the numbers remain the source of truth. */
+.ts-net-bar {
+  position: relative;
+  margin-top: 6px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--ts-separator);
+}
+
+.ts-net-bar::after {
+  /* Center baseline marking the zero point of the diverging scale. */
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 1px;
+  height: 8px;
+  background: var(--ts-hint);
+  opacity: 0.5;
+}
+
+.ts-net-bar-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.ts-net-bar-fill--pos {
+  background: var(--ts-positive);
+}
+
+.ts-net-bar-fill--neg {
+  background: var(--ts-negative);
+}
+
+.ts-net-bar-zero {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ts-hint);
+  transform: translate(-50%, -50%);
+}
+
+/* Floating add button — the primary "log an expense" affordance on the feed. */
+.ts-fab {
+  position: fixed;
+  right: 18px;
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: var(--ts-brand);
+  color: #fff;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--ts-shadow-float);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.ts-fab:active {
+  transform: scale(0.92);
+}
+
+/* Breathing room under the last card so it can scroll clear of the floating
+   add button (fixed at 76px + 56px tall) and the tab bar — otherwise the FAB
+   covers the last row's amount. */
+.ts-list-gap {
+  height: calc(104px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Small explanatory footnote below a card list (antd List has no footer). */
+.ts-section-hint {
+  padding: 8px 20px 4px;
+  font-size: 12.5px;
+  color: var(--ts-hint);
+  line-height: 1.4;
+}
+
+/* --- Form cards used inside the modal sheets --- */
+.ts-card {
+  margin: 0 16px;
+  background: var(--ts-card-bg);
+  border-radius: var(--ts-card-radius);
+  box-shadow: var(--ts-shadow-card);
+  overflow: hidden;
+}
+
+.ts-card--pad {
+  padding: 12px 16px;
+}
+
+/* Big, prominent amount entry at the top of the expense/settlement sheets. */
+.ts-amount-input {
+  --font-size: 30px;
+  --text-align: left;
+  font-weight: 700;
+}
+
+/* Vertical rhythm between stacked form sections in a sheet. */
+.ts-sheet-body > .ts-section-title:first-child {
+  padding-top: 12px;
+}
+
+.ts-sheet-actions {
+  padding: 20px 16px 8px;
+}
+
+.ts-sheet-delete {
+  padding: 8px 16px 4px;
+}
+
+/* Hint line under a control inside a form card (e.g. the equal-split note). */
+.ts-inline-hint {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--ts-hint);
+  line-height: 1.4;
+}
+
+/* Inline validation error banner inside a sheet. */
+.ts-form-error {
+  margin: 14px 16px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 49, 65, 0.08);
+  color: var(--adm-color-danger);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+
+/* Row of small action buttons (share/copy, etc.) inside a list item. */
+.ts-inline-actions {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+/* --- Stats screen: KPI grid, category donut, sparkline, member bars --- */
+
+/* Section header carrying a right-aligned count (Stats "Trip totals" + the
+   expense count) — folds what used to be a separate caption line into the
+   header row to save vertical space, and sits a touch tighter under the bar. */
+.ts-section-title.ts-section-title--row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 14px;
+}
+
+.ts-section-count {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ts-hint);
+}
+
+/* 2×2 grid of small stat cards under the page head. */
+.ts-kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 16px 4px;
+}
+
+.ts-kpi-card {
+  padding: 14px 14px;
+  background: var(--ts-card-bg);
+  border-radius: var(--ts-card-radius);
+  box-shadow: var(--ts-shadow-card);
+}
+
+.ts-kpi-label {
+  font-size: 12.5px;
+  color: var(--ts-hint);
+  font-weight: 500;
+}
+
+.ts-kpi-value {
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--adm-color-text);
+}
+
+/* Category donut card: a CSS conic-gradient ring with a hole punched out via
+   a solid inner circle (no chart lib), plus a legend list below. */
+.ts-donut-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.ts-donut {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.ts-donut-hole {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--ts-card-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+}
+
+.ts-donut-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--adm-color-text);
+  line-height: 1.2;
+}
+
+.ts-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ts-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.ts-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.ts-legend-label {
+  flex: 1 1 auto;
+  color: var(--adm-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-legend-pct {
+  color: var(--ts-hint);
+  flex: 0 0 auto;
+  min-width: 3ch;
+  text-align: right;
+}
+
+.ts-legend-money {
+  color: var(--adm-color-text);
+  font-weight: 600;
+  flex: 0 0 auto;
+}
+
+/* Daily-spend sparkline: an inline SVG (area fill + line + endpoint dot). */
+.ts-sparkline-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ts-sparkline {
+  width: 100%;
+  height: 64px;
+  display: block;
+}
+
+.ts-sparkline-area {
+  fill: var(--adm-color-primary);
+  opacity: 0.12;
+}
+
+.ts-sparkline-line {
+  stroke: var(--adm-color-primary);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.ts-sparkline-dot {
+  fill: var(--adm-color-primary);
+  stroke: var(--ts-card-bg);
+  stroke-width: 2px;
+}
+
+.ts-sparkline-caption {
+  font-size: 12.5px;
+  color: var(--ts-hint);
+}
+
+/* "Who spent what" — a thin proportional bar under each member's name. */
+.ts-member-bar-track {
+  margin-top: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ts-separator);
+  overflow: hidden;
+}
+
+.ts-member-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--adm-color-primary);
+}
+
+.ts-member-name--muted {
+  color: var(--ts-hint);
+}
+
+/* --- Trip switcher sheet (`/trips`): a rounded-square tile with the trip
+   title's first letter, colored deterministically from the trip id —
+   imitates `MemberAvatar`'s initials-circle fallback (same palette) but
+   square, so a trip row never reads as a person row. --- */
+.ts-trip-tile {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  flex: 0 0 auto;
+  user-select: none;
+}
+
+/* Checkmark on the active trip's row. */
+.ts-trip-check {
+  color: var(--adm-color-primary);
+  font-size: 20px;
+}

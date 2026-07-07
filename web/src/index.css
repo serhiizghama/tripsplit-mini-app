@@ -1,0 +1,134 @@
+/**
+ * Global styles + design tokens — redesigned onto the Ant Design Mobile
+ * (mobile.ant.design) design language.
+ *
+ * `antd-mobile` ships its theme as `--adm-*` CSS variables (auto-imported via
+ * `antd-mobile/es/global/global.css` the moment any component is used). We
+ * override the handful of brand tokens below with a `:root:root` selector so
+ * our values win over antd's own `:root` defaults regardless of import order.
+ * The `--ts-*` tokens are TripSplit-specific (money semantics, the balance
+ * hero gradients, page chrome) used by bespoke elements the component library
+ * doesn't cover.
+ *
+ * iOS note: real screens must never use `100vh` — use `100dvh` or the TG
+ * `viewportStableHeight` var, and honor `env(safe-area-inset-*)`.
+ */
+
+:root:root {
+  /* --- Ant Design Mobile brand overrides --- */
+  --adm-color-primary: #1677ff;
+  --adm-color-success: #00b578;
+  --adm-color-warning: #ff8f1f;
+  --adm-color-danger: #ff3141;
+  --adm-color-text: #1a1a1f;
+  --adm-color-text-secondary: #61616b;
+  --adm-color-weak: #9a9aa2;
+  --adm-color-border: #ececf0;
+  --adm-radius-l: 14px;
+
+  /* --- TripSplit tokens --- */
+  --ts-page-bg: #f4f5f7;
+  --ts-card-bg: #ffffff;
+  --ts-card-radius: 16px;
+  --ts-positive: var(--adm-color-success);
+  --ts-negative: var(--adm-color-danger);
+  --ts-hint: var(--adm-color-weak);
+  --ts-separator: var(--adm-color-border);
+
+  /* Balance-hero gradients — the one place color carries meaning: the hue
+     itself answers "how am I doing?" (owed / owe / settled). */
+  --ts-hero-owed: linear-gradient(135deg, #17c98a 0%, #009d67 100%);
+  --ts-hero-owe: linear-gradient(135deg, #ff6a5a 0%, #ff2d55 100%);
+  --ts-hero-settled: linear-gradient(135deg, #4c93ff 0%, #1677ff 100%);
+  --ts-brand: linear-gradient(135deg, #4c93ff 0%, #1677ff 100%);
+
+  --ts-shadow-card: 0 1px 2px rgba(20, 23, 28, 0.04);
+  --ts-shadow-float: 0 8px 28px rgba(20, 23, 28, 0.16);
+
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--ts-page-bg);
+  color: var(--adm-color-text);
+  font-family: var(--adm-font-family);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Numeric figures (amounts, balances) read cleaner aligned. */
+.ts-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--adm-color-box);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+
+a {
+  color: var(--adm-color-primary);
+}
+
+/* Respect users who ask for less motion — neutralize our chip/fab/hero
+   transitions and any antd-mobile animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Section header above a card list — small, uppercase, quiet. */
+.ts-section-title {
+  padding: 20px 20px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ts-hint);
+}
+
+/* antd-mobile List polish: give card-mode lists our radius + soft shadow and
+   drop the hard outer border for a lighter, more modern surface. */
+.adm-list.adm-list-card {
+  margin: 0 16px;
+  border-radius: var(--ts-card-radius);
+  box-shadow: var(--ts-shadow-card);
+  overflow: hidden;
+}
+
+.adm-list-card .adm-list-body {
+  border-top: none;
+  border-bottom: none;
+}

@@ -1,0 +1,127 @@
+/**
+ * Shared presentational primitives styled to the Ant Design Mobile language —
+ * a selectable pill (`Chip`) and the bottom-sheet frame (`Sheet`). Kept here,
+ * not inline, so `:active`/pressed states and the sheet's sticky header can be
+ * expressed properly.
+ */
+
+/* --- Chip: a single-select pill, matching antd-mobile Selector's tinted
+   "selected" treatment (wathet fill + primary border/text). --- */
+.ts-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 16px 16px;
+}
+
+.ts-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 15px;
+  border-radius: 999px;
+  border: 1px solid var(--adm-color-border);
+  background: #fff;
+  color: var(--adm-color-text);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.08s ease;
+  user-select: none;
+}
+
+.ts-chip:active {
+  transform: scale(0.96);
+}
+
+.ts-chip--selected {
+  background: var(--adm-color-wathet, #e7f1ff);
+  border-color: var(--adm-color-primary);
+  color: var(--adm-color-primary);
+  font-weight: 600;
+}
+
+.ts-chip:focus-visible {
+  outline: 2px solid var(--adm-color-primary);
+  outline-offset: 2px;
+}
+
+/* --- EmptyState / ErrorState --- */
+.ts-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 44px 32px;
+  gap: 6px;
+}
+
+.ts-empty-glyph {
+  font-size: 46px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.ts-empty-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--adm-color-text);
+}
+
+.ts-empty-desc {
+  font-size: 14px;
+  color: var(--adm-color-text-secondary);
+  max-width: 30ch;
+}
+
+.ts-empty-action {
+  margin-top: 14px;
+}
+
+/* --- Sheet: the bottom-sheet frame used by the modal routes --- */
+.ts-sheet {
+  height: 92vh;
+  height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  overflow: hidden;
+  background: var(--ts-page-bg);
+}
+
+.ts-sheet-nav {
+  flex: 0 0 auto;
+  background: #fff;
+  border-bottom: 1px solid var(--ts-separator);
+}
+
+.ts-sheet-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+/* A grabber above the nav bar, the standard Ant Design Mobile sheet cue. */
+.ts-sheet-grabber {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+  background: #fff;
+}
+
+.ts-sheet-grabber::before {
+  content: '';
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--adm-color-light);
+}

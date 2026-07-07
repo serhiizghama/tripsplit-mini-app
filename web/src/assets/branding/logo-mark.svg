@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!--
+    TripSplit logo mark — plan §8's "simple logo mark: two overlapping coins
+    ... in Telegram blue on white". Two coins overlapping = the "split"
+    concept (a shared expense, split between people); Telegram blue
+    (#3390EC) is the accent token from §8's design-language table.
+
+    This is the canonical source — `web/src/components/LogoMark.tsx` inlines
+    the exact same geometry as a React component (for the in-app header,
+    Phase 7.2), and `branding/bot-avatar-512.svg` /
+    `branding/miniapp-photo-640x360.svg` reuse the same two-coin motif at
+    their own canvas sizes/margins (see those files' own comments for why
+    the geometry isn't identical — a bot avatar gets circle-cropped by
+    Telegram, so its coins sit further from the canvas edges).
+  -->
+  <rect width="100" height="100" rx="22" fill="#FFFFFF" />
+  <circle cx="36" cy="52" r="28" fill="#8FC2F5" />
+  <circle cx="36" cy="52" r="20" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.55" />
+  <circle cx="64" cy="52" r="28" fill="#3390EC" stroke="#FFFFFF" stroke-width="4" />
+  <circle cx="64" cy="52" r="20" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.55" />
+</svg>

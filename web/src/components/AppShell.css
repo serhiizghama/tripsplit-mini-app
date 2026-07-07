@@ -1,0 +1,35 @@
+/**
+ * App shell layout — scrollable content above a fixed bottom `TabBar`
+ * (antd-mobile). The tab bar carries its own bottom safe-area padding via the
+ * `safeArea` prop; the content reserves a matching amount so the last row is
+ * never hidden behind it.
+ */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--ts-page-bg);
+}
+
+.app-shell-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+.app-shell-tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-top: 1px solid var(--ts-separator);
+}
+
+.app-shell-tabbar .adm-tab-bar-wrap {
+  padding-top: 2px;
+}

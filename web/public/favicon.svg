@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Favicon/app-icon — same mark as web/src/assets/branding/logo-mark.svg, see that file for the design rationale. -->
+  <rect width="100" height="100" rx="22" fill="#FFFFFF" />
+  <circle cx="36" cy="52" r="28" fill="#8FC2F5" />
+  <circle cx="36" cy="52" r="20" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.55" />
+  <circle cx="64" cy="52" r="28" fill="#3390EC" stroke="#FFFFFF" stroke-width="4" />
+  <circle cx="64" cy="52" r="20" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.55" />
+</svg>
