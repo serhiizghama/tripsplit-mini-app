@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+!.env.deploy.example
+
+# Data / DB
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+data/
+backups/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.local
+
+# Local dev tunnel URL (written by scripts/tunnel.sh)
+server/.tunnel-url
+
+# Local tooling state — not part of the project
+.omc/
+
+# Internal planning drafts — kept local until restructured into docs/
+IMPLEMENTATION_PLAN.md
+RECEIPT_SPLIT_PLAN.md
