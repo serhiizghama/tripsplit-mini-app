@@ -1,0 +1,36 @@
+{
+  "name": "@tripsplit/server",
+  "private": true,
+  "version": "0.0.1",
+  "description": "TripSplit API — Node 22 + Hono",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "build": "tsup src/index.ts --format esm --target node22 --out-dir dist --clean --sourcemap",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "seed": "tsx ../scripts/seed.ts",
+    "reset": "tsx ../scripts/reset.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.0.8",
+    "@tma.js/init-data-node": "^2.0.8",
+    "@tripsplit/shared": "*",
+    "better-sqlite3": "^12.11.1",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.28",
+    "nanoid": "^5.1.6",
+    "node-cron": "^4.6.0",
+    "pino": "^10.3.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.20.0",
+    "drizzle-kit": "^0.31.10",
+    "vitest": "^4.1.10"
+  }
+}
