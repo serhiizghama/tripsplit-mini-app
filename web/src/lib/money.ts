@@ -16,7 +16,7 @@ import { findCurrency, getCurrencyExponent } from '@tripsplit/shared';
 // (Phase 5.7) uses the exact same conversion formula the server stores —
 // see `shared/src/money.ts`'s doc comment for why this lives in
 // `@tripsplit/shared` rather than being duplicated here.
-export { computeAmountBaseMinor } from '@tripsplit/shared';
+export { computeAmountBaseMinor, computeAmountFromBaseMinor } from '@tripsplit/shared';
 
 /**
  * Parses a user-entered decimal amount (e.g. `"12.5"`, `"1,234.56"`) into
@@ -67,7 +67,11 @@ export function minorToAmountInput(amountMinor: number, currency: string): strin
  * automatically" — we still pass it explicitly since our registry is the
  * single source of truth for money math throughout the app.
  */
-export function formatMoney(amountMinor: number, currency: string, locale = 'en'): string {
+export function formatMoney(
+  amountMinor: number,
+  currency: string,
+  locale = 'en',
+): string {
   const meta = findCurrency(currency);
   const exponent = meta?.exponent ?? 2;
   const value = amountMinor / 10 ** exponent;

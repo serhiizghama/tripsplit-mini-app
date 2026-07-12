@@ -34,7 +34,12 @@ import { ListSkeleton } from '../components/ListSkeleton';
 import { MemberAvatar } from '../components/MemberAvatar';
 import { EmptyState, ErrorState, SectionTitle, Sheet } from '../components/ui';
 import { useFormatters, useT } from '../i18n';
-import { computeAmountBaseMinor, minorToAmountInput, parseAmountToMinor } from '../lib/money';
+import {
+  computeAmountBaseMinor,
+  computeAmountFromBaseMinor,
+  minorToAmountInput,
+  parseAmountToMinor,
+} from '../lib/money';
 import { useClosingConfirmation } from '../telegram/useClosingConfirmation';
 import {
   useMainButtonAvailable,
@@ -75,6 +80,8 @@ export function SettlementSheet() {
 
   const [currency, setCurrency] = useState('USD');
   const [amountInput, setAmountInput] = useState('');
+  const [amountTouched, setAmountTouched] = useState(false);
+  const [ready, setReady] = useState(false);
   const [spentOn, setSpentOn] = useState(todayUtcDate());
   const [description, setDescription] = useState('');
   const [rateInput, setRateInput] = useState('1');
@@ -92,6 +99,7 @@ export function SettlementSheet() {
     if (prefill) {
       setAmountInput(minorToAmountInput(prefill.amountBaseMinor, trip.data.baseCurrency));
     }
+    setReady(true);
   }, [trip.data, prefill]);
 
   const baseCurrency = trip.data?.baseCurrency;
@@ -100,13 +108,53 @@ export function SettlementSheet() {
   // Phase 6.4: same instant local-cache rate prefill as the add-expense
   // sheet (Phase 5.7) — only fetched when settling in a non-base currency.
   const rateQuery = useRate(
-    needsRate && baseCurrency ? { date: spentOn, currency, base: baseCurrency } : undefined,
+    needsRate && baseCurrency
+      ? { date: spentOn, currency, base: baseCurrency }
+      : undefined,
   );
 
   useEffect(() => {
     if (!needsRate || rateTouched || rateQuery.data === undefined) return;
     setRateInput(String(rateQuery.data.rate));
   }, [needsRate, rateTouched, rateQuery.data]);
+
+  // The rate the amount auto-conversion below should use: a manual override
+  // when the user typed one, otherwise the prefilled cache rate; `1` when
+  // paying in the base currency (no conversion).
+  const effectiveRate = !needsRate
+    ? 1
+    : rateTouched
+      ? Number(rateInput)
+      : rateQuery.data?.rate;
+
+  // The debt is fixed in the trip's base currency, so when the user switches
+  // the settlement currency (and hasn't manually edited the amount), refill
+  // the amount with that debt converted into the chosen currency — answering
+  // "how much THB clears my €100 debt" instead of silently reinterpreting the
+  // same number in the new currency. A manual amount edit (partial settlement)
+  // sets `amountTouched` and opts out, leaving the entered value alone.
+  useEffect(() => {
+    if (!ready || amountTouched || !prefill || baseCurrency === undefined) return;
+    if (!needsRate) {
+      setAmountInput(minorToAmountInput(prefill.amountBaseMinor, baseCurrency));
+      return;
+    }
+    if (
+      effectiveRate === undefined ||
+      !Number.isFinite(effectiveRate) ||
+      effectiveRate <= 0
+    )
+      return;
+    const converted = computeAmountFromBaseMinor(
+      prefill.amountBaseMinor,
+      currency,
+      baseCurrency,
+      effectiveRate,
+    );
+    if (converted !== undefined) {
+      setAmountInput(minorToAmountInput(converted, currency));
+    }
+  }, [ready, amountTouched, prefill, baseCurrency, needsRate, currency, effectiveRate]);
 
   const amountMinor = parseAmountToMinor(amountInput, currency);
   const parsedRateForPreview = Number(rateInput);
@@ -253,6 +301,7 @@ export function SettlementSheet() {
               value={amountInput}
               onChange={(value) => {
                 setAmountInput(value);
+                setAmountTouched(true);
                 markTouched();
               }}
             />
@@ -286,7 +335,9 @@ export function SettlementSheet() {
 
           {needsRate && (
             <>
-              <SectionTitle>{t('rate.header', { currency, base: baseCurrency ?? '' })}</SectionTitle>
+              <SectionTitle>
+                {t('rate.header', { currency, base: baseCurrency ?? '' })}
+              </SectionTitle>
               <div className="ts-card ts-card--pad">
                 <Input
                   className="ts-nums"

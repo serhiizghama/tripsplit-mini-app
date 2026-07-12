@@ -30,3 +30,28 @@ export function computeAmountBaseMinor(
   const baseExponent = getCurrencyExponent(baseCurrency);
   return Math.round(amountMinor * 10 ** (baseExponent - origExponent) * rateToBase);
 }
+
+/**
+ * Inverse of `computeAmountBaseMinor`: how many minor units of `currency`
+ * equal a given base-currency total at `rateToBase`. Used by the settlement
+ * sheet to turn a fixed base-currency debt into the amount to pay in whatever
+ * currency the user picks (e.g. "you owe €100" → "≈ ฿3,800").
+ *
+ * Returns `undefined` for a non-positive/non-finite rate — there's no
+ * meaningful inverse. Rounding is not a perfect round-trip: feeding the result
+ * back through `computeAmountBaseMinor` may differ by one minor unit. That's
+ * fine here — the settlement's stored `amount_base_minor` is always recomputed
+ * server-side from the submitted amount (the single source of truth), so this
+ * only drives the editable input's suggested value.
+ */
+export function computeAmountFromBaseMinor(
+  baseMinor: number,
+  currency: string,
+  baseCurrency: string,
+  rateToBase: number,
+): number | undefined {
+  if (!Number.isFinite(rateToBase) || rateToBase <= 0) return undefined;
+  const origExponent = getCurrencyExponent(currency);
+  const baseExponent = getCurrencyExponent(baseCurrency);
+  return Math.round((baseMinor * 10 ** (origExponent - baseExponent)) / rateToBase);
+}
