@@ -8,9 +8,28 @@
  *
  * The server does not restrict `category` to this exact set (any short
  * string is accepted — see `server/src/routes/trips.ts`'s expense schema);
- * this is only the picker's curated list.
+ * this is only the picker's curated list. `📦` (Other) stays last as the
+ * catch-all/fallback chip.
  */
-export const EXPENSE_CATEGORIES = ['🍜', '🚕', '🏨', '🎟️', '🛍️', '💊', '📦'] as const;
+export const EXPENSE_CATEGORIES = [
+  '🍜', // food
+  '🍺', // drinks
+  '🛒', // groceries
+  '🚕', // taxi
+  '🚆', // transport
+  '✈️', // flights
+  '⛽', // fuel
+  '🚗', // car rental
+  '🏨', // hotel
+  '🎟️', // tickets
+  '🎒', // activities
+  '🛍️', // shopping
+  '🎁', // souvenirs
+  '💊', // medicine
+  '📶', // connectivity
+  '💵', // fees
+  '📦', // other (catch-all, keep last)
+] as const;
 
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
 
@@ -23,10 +42,20 @@ export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
  */
 export const EXPENSE_CATEGORY_NAME_KEYS: Record<ExpenseCategory, string> = {
   '🍜': 'category.food',
+  '🍺': 'category.drinks',
+  '🛒': 'category.groceries',
   '🚕': 'category.taxi',
+  '🚆': 'category.transport',
+  '✈️': 'category.flights',
+  '⛽': 'category.fuel',
+  '🚗': 'category.car',
   '🏨': 'category.hotel',
   '🎟️': 'category.tickets',
+  '🎒': 'category.activities',
   '🛍️': 'category.shopping',
+  '🎁': 'category.souvenirs',
   '💊': 'category.medicine',
+  '📶': 'category.connectivity',
+  '💵': 'category.fees',
   '📦': 'category.other',
 };
