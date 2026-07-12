@@ -7,18 +7,34 @@
  *
  * There is no in-page fix to offer: Telegram only mints a fresh, validly
  * signed `initData` on a new Mini App launch, never via any action taken
- * inside the WebView. The "Reload" button is a reasonable first thing to
- * try (a same-tab reload can pick up a still-valid launch context in some
- * cases) — the copy is honest that closing and reopening from the chat is
- * the real fix if that doesn't help.
+ * inside the WebView — and a plain reload just re-sends the same expired
+ * initData (the SDK serves it from cached launch params), so it can't
+ * recover the session. The button therefore closes the Mini App via
+ * `miniApp.close()`, sending the user back to the chat where reopening it
+ * triggers a genuine relaunch with fresh initData. Outside Telegram
+ * (plain-browser dev, where `close` isn't available) it falls back to a
+ * reload, preserving the previous behavior there.
  *
  * Redesigned onto antd-mobile: the shared `EmptyState` primitive replaces
- * telegram-ui's `Placeholder`; the reload action is unchanged.
+ * telegram-ui's `Placeholder`.
  */
+import { miniApp } from '@tma.js/sdk-react';
 import { Button } from 'antd-mobile';
 
 import { EmptyState } from '../components/ui';
 import { useT } from '../i18n';
+
+/**
+ * Closes the Mini App so reopening from the chat mints fresh initData; falls
+ * back to a reload only where `close` isn't available (non-Telegram dev).
+ */
+function recoverSession(): void {
+  if (miniApp.close.isAvailable()) {
+    miniApp.close();
+  } else {
+    window.location.reload();
+  }
+}
 
 export function SessionExpiredScreen() {
   const t = useT();
@@ -39,7 +55,7 @@ export function SessionExpiredScreen() {
         title={t('session.expiredHeader')}
         description={t('session.expiredDescription')}
         action={
-          <Button color="primary" size="large" onClick={() => window.location.reload()}>
+          <Button color="primary" size="large" onClick={recoverSession}>
             {t('session.reload')}
           </Button>
         }

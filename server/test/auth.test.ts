@@ -24,7 +24,15 @@ describe('Telegram initData auth', () => {
     const { app } = current;
 
     const initDataRaw = sign(
-      { user: { id: 111222333, first_name: 'Anna', last_name: 'K', username: 'annak', language_code: 'ru' } },
+      {
+        user: {
+          id: 111222333,
+          first_name: 'Anna',
+          last_name: 'K',
+          username: 'annak',
+          language_code: 'ru',
+        },
+      },
       TEST_BOT_TOKEN,
       new Date(),
     );
@@ -64,12 +72,16 @@ describe('Telegram initData auth', () => {
     expect(body.code).toBe('unauthorized');
   });
 
-  it('an expired initData fixture (auth_date older than 3600s) is rejected with 401', async () => {
+  it('an expired initData fixture (auth_date older than the 24h window) is rejected with 401', async () => {
     current = await bootTestApp();
     const { app } = current;
 
-    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-    const staleInitDataRaw = sign({ user: { id: 555, first_name: 'Stale' } }, TEST_BOT_TOKEN, twoHoursAgo);
+    const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const staleInitDataRaw = sign(
+      { user: { id: 555, first_name: 'Stale' } },
+      TEST_BOT_TOKEN,
+      twoDaysAgo,
+    );
 
     const res = await app.request('/api/me', {
       headers: { Authorization: `tma ${staleInitDataRaw}` },

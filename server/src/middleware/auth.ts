@@ -18,8 +18,15 @@ import { z } from 'zod';
 import { db, schema } from '../db/index.js';
 import { AppError } from '../lib/errors.js';
 
-/** initData is valid for at most 1 hour, per IMPLEMENTATION_PLAN.md §7. */
-const INIT_DATA_EXPIRES_IN_SECONDS = 3600;
+/**
+ * initData is valid for 24 hours. Telegram only re-issues a freshly signed
+ * initData on a genuine Mini App launch; mobile clients frequently resume a
+ * cached WebView instead of relaunching, so a short window (was 1h per
+ * IMPLEMENTATION_PLAN.md §7) stranded phone users on a permanent 401 they
+ * couldn't clear by reopening. 24h is Telegram's own example TTL and the
+ * accepted security/UX balance for this app.
+ */
+const INIT_DATA_EXPIRES_IN_SECONDS = 86_400;
 
 const AUTH_HEADER_SCHEMA = z.string().regex(/^tma\s+(.+)$/);
 
@@ -132,7 +139,11 @@ export function createAuthMiddleware(botToken: string) {
 
     const initData = parse(initDataRaw);
     if (!initData.user) {
-      throw new AppError(401, 'unauthorized', 'Telegram init data is missing the user field');
+      throw new AppError(
+        401,
+        'unauthorized',
+        'Telegram init data is missing the user field',
+      );
     }
 
     const user = upsertUserFromTelegram(initData.user);
