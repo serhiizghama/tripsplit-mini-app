@@ -21,6 +21,8 @@
     "format:check": "prettier --check .",
     "typecheck": "npm run build --workspace=shared && npm run typecheck --workspaces --if-present && tsc -p scripts/tsconfig.json --noEmit",
     "test": "npm run test --workspaces --if-present",
+    "prod": "mkdir -p logs && npm run build && pm2 startOrReload ecosystem.config.cjs --only tripsplit-server && pm2 save",
+    "prodd": "pm2 delete tripsplit-server || true; mkdir -p logs && npm run build && pm2 start ecosystem.config.cjs --only tripsplit-server && pm2 save",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {

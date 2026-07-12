@@ -33,6 +33,8 @@ import { useCurrentTrip, useRate } from '../api/queries';
 import { CurrencyPicker } from '../components/CurrencyPicker';
 import { ListSkeleton } from '../components/ListSkeleton';
 import {
+  CategoryGrid,
+  CategoryTile,
   Chip,
   ChipRow,
   EmptyState,
@@ -578,21 +580,20 @@ export function AddExpenseSheet() {
 
           <SectionTitle>{t('expense.categoryHeader')}</SectionTitle>
           <div className="ts-card">
-            <ChipRow>
+            <CategoryGrid>
               {EXPENSE_CATEGORIES.map((emoji) => (
-                <Chip
+                <CategoryTile
                   key={emoji}
                   selected={category === emoji}
-                  title={t(EXPENSE_CATEGORY_NAME_KEYS[emoji])}
+                  glyph={emoji}
+                  label={t(EXPENSE_CATEGORY_NAME_KEYS[emoji])}
                   onClick={() => {
                     setCategory(category === emoji ? null : emoji);
                     markTouched();
                   }}
-                >
-                  {emoji}
-                </Chip>
+                />
               ))}
-            </ChipRow>
+            </CategoryGrid>
           </div>
 
           <SectionTitle>{t('expense.dateHeader')}</SectionTitle>

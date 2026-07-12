@@ -42,6 +42,43 @@ export function ChipRow({ children }: { children: ReactNode }) {
   return <div className="ts-chip-row">{children}</div>;
 }
 
+/** Fixed 4-column grid container for `CategoryTile`s. */
+export function CategoryGrid({ children }: { children: ReactNode }) {
+  return <div className="ts-cat-grid">{children}</div>;
+}
+
+/**
+ * A single-select category tile: emoji glyph stacked over a short label. Unlike
+ * an icon-only `Chip`, the label is always visible so the category is readable
+ * on touch (where a `title` tooltip never shows). Tiles are uniform height —
+ * the label reserves two lines so one- and two-word names line up in the grid.
+ */
+export function CategoryTile({
+  selected,
+  onClick,
+  glyph,
+  label,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  glyph: ReactNode;
+  label: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className={`ts-cat-tile${selected ? ' ts-cat-tile--selected' : ''}`}
+      aria-pressed={selected}
+      onClick={onClick}
+    >
+      <span className="ts-cat-tile__glyph" aria-hidden="true">
+        {glyph}
+      </span>
+      <span className="ts-cat-tile__label">{label}</span>
+    </button>
+  );
+}
+
 /** Small uppercase label above a card-mode `List`. */
 export function SectionTitle({ children }: { children: ReactNode }) {
   return <div className="ts-section-title">{children}</div>;
