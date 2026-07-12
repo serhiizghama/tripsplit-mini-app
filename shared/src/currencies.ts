@@ -195,7 +195,7 @@ export const CURRENCIES: readonly Currency[] = [
   { code: 'UAH', symbol: '₴', exponent: 2, nameKey: 'currency.uah' },
   { code: 'UGX', symbol: 'USh', exponent: 0, nameKey: 'currency.ugx' },
   { code: 'USD', symbol: '$', exponent: 2, nameKey: 'currency.usd' },
-  { code: 'USDT', symbol: 'USDT', exponent: 2, nameKey: 'currency.usdt' },
+  { code: 'USDT', symbol: '₮', exponent: 2, nameKey: 'currency.usdt' },
   { code: 'UYU', symbol: '$U', exponent: 2, nameKey: 'currency.uyu' },
   { code: 'UZS', symbol: 'soʻm', exponent: 2, nameKey: 'currency.uzs' },
   { code: 'VES', symbol: 'Bs.S', exponent: 2, nameKey: 'currency.ves' },
