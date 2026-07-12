@@ -51,6 +51,42 @@ export function minorToAmountInput(amountMinor: number, currency: string): strin
 }
 
 /**
+ * Thousands separator used to display amounts — a narrow no-break space
+ * (U+202F): thin, keeps the number on one line, and (unlike a comma) never
+ * collides with the decimal point `parseAmountToMinor` reads.
+ */
+const AMOUNT_GROUP_SEPARATOR = '\u202F';
+
+/**
+ * Strips grouping/whitespace and normalizes a decimal comma to a dot, leaving
+ * only the raw `\d+(\.\d*)?` string the rest of the money pipeline expects.
+ * Run on every amount-field `onChange` so state stays raw while the input
+ * *displays* a grouped value (see `formatAmountForDisplay`).
+ */
+export function sanitizeAmountInput(input: string): string {
+  const cleaned = input.replace(/,/g, '.').replace(/[^\d.]/g, '');
+  const firstDot = cleaned.indexOf('.');
+  if (firstDot === -1) return cleaned;
+  // Keep the first dot, drop any later ones ("1.2.3" -> "1.23").
+  return cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+}
+
+/**
+ * Groups the integer part of a raw amount string in threes for display
+ * (e.g. `"1960000.00"` -> `"1 960 000.00"`). The fractional part and a
+ * trailing dot are left untouched so mid-typing states render as typed. The
+ * inverse is `sanitizeAmountInput`; `formatAmountForDisplay` is display-only —
+ * never store its output in state.
+ */
+export function formatAmountForDisplay(raw: string): string {
+  if (raw === '') return '';
+  const dotIndex = raw.indexOf('.');
+  const intPart = dotIndex === -1 ? raw : raw.slice(0, dotIndex);
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, AMOUNT_GROUP_SEPARATOR);
+  return dotIndex === -1 ? grouped : grouped + raw.slice(dotIndex);
+}
+
+/**
  * Human-readable money string (e.g. `"€12.50"`, `"₫500,000"`), locale-aware
  * (Phase 7 §9: "all currency/date formatting via `Intl.NumberFormat`/
  * `Intl.DateTimeFormat` with the active locale").

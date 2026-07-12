@@ -37,8 +37,10 @@ import { useFormatters, useT } from '../i18n';
 import {
   computeAmountBaseMinor,
   computeAmountFromBaseMinor,
+  formatAmountForDisplay,
   minorToAmountInput,
   parseAmountToMinor,
+  sanitizeAmountInput,
 } from '../lib/money';
 import { useClosingConfirmation } from '../telegram/useClosingConfirmation';
 import {
@@ -298,9 +300,9 @@ export function SettlementSheet() {
               placeholder="0.00"
               inputMode="decimal"
               autoFocus
-              value={amountInput}
+              value={formatAmountForDisplay(amountInput)}
               onChange={(value) => {
-                setAmountInput(value);
+                setAmountInput(sanitizeAmountInput(value));
                 setAmountTouched(true);
                 markTouched();
               }}

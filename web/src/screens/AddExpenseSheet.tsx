@@ -32,12 +32,28 @@ import { useCreateExpense, useDeleteExpense, useUpdateExpense } from '../api/mut
 import { useCurrentTrip, useRate } from '../api/queries';
 import { CurrencyPicker } from '../components/CurrencyPicker';
 import { ListSkeleton } from '../components/ListSkeleton';
-import { Chip, ChipRow, EmptyState, ErrorState, SectionTitle, Sheet } from '../components/ui';
+import {
+  Chip,
+  ChipRow,
+  EmptyState,
+  ErrorState,
+  SectionTitle,
+  Sheet,
+} from '../components/ui';
 import { useFormatters, useT } from '../i18n';
 import { getLastCurrency, setLastCurrency } from '../lib/lastCurrency';
-import { computeAmountBaseMinor, minorToAmountInput, parseAmountToMinor } from '../lib/money';
+import {
+  computeAmountBaseMinor,
+  formatAmountForDisplay,
+  minorToAmountInput,
+  parseAmountToMinor,
+  sanitizeAmountInput,
+} from '../lib/money';
 import { useClosingConfirmation } from '../telegram/useClosingConfirmation';
-import { useMainButtonAvailable, useMainButtonSubmit } from '../telegram/useMainButtonSubmit';
+import {
+  useMainButtonAvailable,
+  useMainButtonSubmit,
+} from '../telegram/useMainButtonSubmit';
 import './screens.css';
 
 const SPLIT_MODES: { mode: SplitMode; labelKey: string }[] = [
@@ -131,7 +147,9 @@ export function AddExpenseSheet() {
     initializedRef.current = true;
 
     if (existingExpense) {
-      setAmountInput(minorToAmountInput(existingExpense.amountMinor, existingExpense.currency));
+      setAmountInput(
+        minorToAmountInput(existingExpense.amountMinor, existingExpense.currency),
+      );
       setCurrency(existingExpense.currency);
       setIsPlanned(existingExpense.status === 'planned');
       setPayerId(existingExpense.payerId ?? undefined);
@@ -147,7 +165,10 @@ export function AddExpenseSheet() {
       if (existingExpense.splitMode === 'custom') {
         const shares: Record<number, string> = {};
         for (const share of existingExpense.shares) {
-          shares[share.userId] = minorToAmountInput(share.shareMinor, existingExpense.currency);
+          shares[share.userId] = minorToAmountInput(
+            share.shareMinor,
+            existingExpense.currency,
+          );
         }
         setCustomShares(shares);
       }
@@ -168,7 +189,9 @@ export function AddExpenseSheet() {
   // Phase 5.7: instant local-cache rate prefill. Only fetched when it's
   // actually needed (different currency than the trip base).
   const rateQuery = useRate(
-    needsRate && baseCurrency ? { date: spentOn, currency, base: baseCurrency } : undefined,
+    needsRate && baseCurrency
+      ? { date: spentOn, currency, base: baseCurrency }
+      : undefined,
   );
 
   // Prefill the rate field from the fetched cross-rate as long as the user
@@ -182,13 +205,17 @@ export function AddExpenseSheet() {
 
   const parsedRateForPreview = Number(rateInput);
   const previewBaseMinor =
-    needsRate && baseCurrency && amountMinor !== undefined &&
-    Number.isFinite(parsedRateForPreview) && parsedRateForPreview > 0
+    needsRate &&
+    baseCurrency &&
+    amountMinor !== undefined &&
+    Number.isFinite(parsedRateForPreview) &&
+    parsedRateForPreview > 0
       ? computeAmountBaseMinor(amountMinor, currency, baseCurrency, parsedRateForPreview)
       : undefined;
 
   const customShareTotal = members.reduce(
-    (sum, member) => sum + (parseAmountToMinor(customShares[member.id] ?? '', currency) ?? 0),
+    (sum, member) =>
+      sum + (parseAmountToMinor(customShares[member.id] ?? '', currency) ?? 0),
     0,
   );
 
@@ -197,7 +224,7 @@ export function AddExpenseSheet() {
   }
 
   function handleAmountChange(value: string) {
-    setAmountInput(value);
+    setAmountInput(sanitizeAmountInput(value));
     markTouched();
   }
 
@@ -341,7 +368,9 @@ export function AddExpenseSheet() {
       },
       onError: (err) => {
         hapticFeedback.notificationOccurred.ifAvailable('error');
-        setErrorMessage(err instanceof Error ? err.message : t('expense.errorDeleteFailed'));
+        setErrorMessage(
+          err instanceof Error ? err.message : t('expense.errorDeleteFailed'),
+        );
       },
     });
   }
@@ -380,7 +409,10 @@ export function AddExpenseSheet() {
   const close = () => navigate(-1);
 
   return (
-    <Sheet title={isEditing ? t('expense.editTitle') : t('expense.addTitle')} onClose={close}>
+    <Sheet
+      title={isEditing ? t('expense.editTitle') : t('expense.addTitle')}
+      onClose={close}
+    >
       {tripId === undefined && (
         <EmptyState glyph="🧳" description={t('expense.noTripPlaceholder')} />
       )}
@@ -400,7 +432,9 @@ export function AddExpenseSheet() {
         />
       )}
 
-      {notFound && <EmptyState glyph="🧾" description={t('expense.notFoundPlaceholder')} />}
+      {notFound && (
+        <EmptyState glyph="🧾" description={t('expense.notFoundPlaceholder')} />
+      )}
 
       {tripId !== undefined && trip.data && me.data && !notFound && (
         <>
@@ -411,7 +445,7 @@ export function AddExpenseSheet() {
               placeholder="0.00"
               inputMode="decimal"
               autoFocus={!isEditing}
-              value={amountInput}
+              value={formatAmountForDisplay(amountInput)}
               onChange={handleAmountChange}
             />
           </div>
@@ -500,9 +534,12 @@ export function AddExpenseSheet() {
                         inputMode="decimal"
                         placeholder="0.00"
                         style={{ '--text-align': 'right' }}
-                        value={customShares[member.id] ?? ''}
+                        value={formatAmountForDisplay(customShares[member.id] ?? '')}
                         onChange={(value) => {
-                          setCustomShares((prev) => ({ ...prev, [member.id]: value }));
+                          setCustomShares((prev) => ({
+                            ...prev,
+                            [member.id]: sanitizeAmountInput(value),
+                          }));
                           markTouched();
                         }}
                       />
@@ -572,7 +609,9 @@ export function AddExpenseSheet() {
 
           {needsRate && (
             <>
-              <SectionTitle>{t('rate.header', { currency, base: baseCurrency ?? '' })}</SectionTitle>
+              <SectionTitle>
+                {t('rate.header', { currency, base: baseCurrency ?? '' })}
+              </SectionTitle>
               <div className="ts-card ts-card--pad">
                 <Input
                   className="ts-nums"
