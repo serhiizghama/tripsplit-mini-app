@@ -431,6 +431,82 @@ export interface InsightsResponse {
 }
 
 /**
+ * One earned award in a trip's Wrap page (`GET /api/trips/:id/wrap`) —
+ * Spotify-Wrapped-style stat card (`docs/TRIP_WRAP_PLAN.md`). `kind` picks
+ * which of the payload fields are populated; kept flat (rather than a
+ * discriminated union per kind) so it stays plain JSON for the web layer to
+ * switch on. `userId` is present for member-scoped awards (sponsor,
+ * bookkeeper, biggestExpense's payer, currencyCollector, categoryChampion)
+ * and absent for the day/group-scoped ones (busiestDay, priciestDay,
+ * settlements — no single "winning" member). See `server/src/lib/wrap.ts`
+ * for the exact per-kind rules and tie-breaks.
+ */
+export interface WrapAward {
+  kind:
+    | 'sponsor'
+    | 'bookkeeper'
+    | 'biggestExpense'
+    | 'busiestDay'
+    | 'priciestDay'
+    | 'currencyCollector'
+    | 'categoryChampion'
+    | 'settlements';
+  userId?: number;
+  /** sponsor/biggestExpense/priciestDay (base-currency total); categoryChampion (that member's total in the category); settlements (total volume). */
+  amountBaseMinor?: number;
+  /** bookkeeper (expenses logged), busiestDay (expense count that day), currencyCollector (distinct currencies paid in), settlements (settlement count). */
+  count?: number;
+  /** busiestDay, priciestDay — the `spentOn` date (`YYYY-MM-DD`). */
+  date?: string;
+  /** categoryChampion — the category emoji glyph (see `categories.ts`). */
+  category?: string;
+  /** biggestExpense — its own description, falling back to its category glyph when there's no description. */
+  description?: string | null;
+}
+
+/** Per-member row in a trip's Wrap page member table — `GET /api/trips/:id/wrap`. */
+export interface WrapMemberRow {
+  userId: number;
+  /** Sum of `amountBaseMinor` for expense rows this member paid. */
+  paidBaseMinor: number;
+  /** Sum of this member's `expense_shares`, converted to base — same allocation as `MemberBalance.owedBaseMinor`, but expense-only (no settlements). */
+  shareBaseMinor: number;
+  /** Count of expense rows this member paid for. */
+  expensesPaidCount: number;
+}
+
+/**
+ * `GET /api/trips/:id/wrap` response — the "Trip Wrapped" celebratory report
+ * shown on close (`docs/TRIP_WRAP_PLAN.md`). Headline numbers + per-member
+ * table + earned awards + settle state, computed over the same paid/
+ * non-deleted expense scope as `InsightsResponse`; settlements only feed the
+ * `settlements` award (see `server/src/lib/wrap.ts`).
+ */
+export interface TripWrapResponse {
+  tripId: string;
+  title: string;
+  baseCurrency: string;
+  archivedAt: string | null;
+  totalBaseMinor: number;
+  expenseCount: number;
+  /** Number of distinct `spentOn` dates among counted expense rows. */
+  dayCount: number;
+  avgPerDayBaseMinor: number;
+  /** Earliest/latest `spentOn` among counted expense rows, or `null` when there are none. */
+  firstSpentOn: string | null;
+  lastSpentOn: string | null;
+  /** Number of distinct currencies used across counted expense rows. */
+  currenciesUsed: number;
+  /** Sorted by `paidBaseMinor` descending, tie-broken by `userId` ascending. */
+  members: WrapMemberRow[];
+  /** Only earned awards (zero/empty data omits the award), in a fixed deterministic order — see `server/src/lib/wrap.ts`. */
+  awards: WrapAward[];
+  /** `true` when `outstandingTransfers` is empty. */
+  settled: boolean;
+  outstandingTransfers: TransferSuggestion[];
+}
+
+/**
  * `GET /api/health` response — Phase 8.2. Stays public (no auth) so an
  * external uptime monitor can hit it with no credentials. `lastRateFetch` is
  * `null` when the `rates` table is empty (fresh deploy, before the first
