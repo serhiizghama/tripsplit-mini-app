@@ -18,6 +18,7 @@ import type {
   InsightsResponse,
   TripDetail,
   TripJoinInfo,
+  TripWrapResponse,
 } from '@tripsplit/shared';
 import { and, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
@@ -32,16 +33,22 @@ import { AppError } from '../lib/errors.js';
 import { createExpense, createSettlement } from '../lib/expenses.js';
 import { getTripInsights } from '../lib/insights.js';
 import { getTripMembers } from '../lib/members.js';
-import { notifyExpenseCreated, notifySettlementCreated } from '../lib/notify.js';
+import {
+  notifyExpenseCreated,
+  notifySettlementCreated,
+  notifyTripClosed,
+} from '../lib/notify.js';
 import { buildTripSummaryMessage } from '../lib/summary.js';
 import { getLinkedChats } from '../lib/tripChats.js';
 import {
   buildInviteLink,
   getTripOrThrow,
   hasNonDeletedExpenses,
+  requireActiveTrip,
   requireMembership,
   toTripDetail,
 } from '../lib/trips.js';
+import { getTripWrap } from '../lib/wrap.js';
 import { currencyCodeSchema, validateJsonBody } from '../lib/validate.js';
 
 const TRIP_ID_LENGTH = 12;
@@ -341,6 +348,7 @@ tripsRouter.post('/:id/settlements', async (c) => {
   const user = c.get('user');
   const tripId = c.req.param('id');
   const trip = requireMembership(tripId, user.id);
+  requireActiveTrip(trip);
   const body = await validateJsonBody(c, createSettlementSchema);
 
   const settlement: ExpenseWithShares = createSettlement({
@@ -370,6 +378,7 @@ tripsRouter.post('/:id/expenses', async (c) => {
   const user = c.get('user');
   const tripId = c.req.param('id');
   const trip = requireMembership(tripId, user.id);
+  requireActiveTrip(trip);
   const body = await validateJsonBody(c, createExpenseSchema);
 
   const expense: ExpenseWithShares = createExpense({
@@ -391,6 +400,63 @@ tripsRouter.post('/:id/expenses', async (c) => {
 
   void notifyExpenseCreated(trip, user, expense);
   return c.json(expense, 201);
+});
+
+// GET /api/trips/:id/wrap — Trip Wrap plan (`docs/TRIP_WRAP_PLAN.md`) task W2.
+// Membership-checked, no archived check: available as a live preview on an
+// active trip too, not just after close (see `lib/wrap.ts` for the math).
+tripsRouter.get('/:id/wrap', (c) => {
+  const user = c.get('user');
+  const tripId = c.req.param('id');
+  const trip = requireMembership(tripId, user.id);
+
+  const response: TripWrapResponse = getTripWrap(trip);
+  return c.json(response);
+});
+
+// POST /api/trips/:id/close — "Finish trip" (task W2). Stamps `archivedAt`,
+// fires the farewell card to any linked chat (fire-and-forget — a Telegram
+// outage never fails the close, see `notify.ts`'s `notifyTripClosed`), and
+// returns the same wrap payload `GET /:id/wrap` would.
+tripsRouter.post('/:id/close', async (c) => {
+  const user = c.get('user');
+  const tripId = c.req.param('id');
+  const trip = requireMembership(tripId, user.id);
+
+  if (trip.archivedAt) {
+    throw new AppError(409, 'trip_archived', 'This trip is already closed');
+  }
+
+  db.update(schema.trips)
+    .set({ archivedAt: new Date().toISOString() })
+    .where(eq(schema.trips.id, tripId))
+    .run();
+
+  const updated = getTripOrThrow(tripId);
+  void notifyTripClosed(updated, user);
+
+  const response: TripWrapResponse = getTripWrap(updated);
+  return c.json(response);
+});
+
+// POST /api/trips/:id/reopen — the undo path for `/close` (task W2). Clears
+// `archivedAt`; no farewell/notification on the way back in.
+tripsRouter.post('/:id/reopen', async (c) => {
+  const user = c.get('user');
+  const tripId = c.req.param('id');
+  const trip = requireMembership(tripId, user.id);
+
+  if (!trip.archivedAt) {
+    throw new AppError(409, 'trip_not_archived', 'This trip is not archived');
+  }
+
+  db.update(schema.trips)
+    .set({ archivedAt: null })
+    .where(eq(schema.trips.id, tripId))
+    .run();
+
+  const updated = getTripOrThrow(tripId);
+  return c.json(toTripDetail(updated));
 });
 
 export default tripsRouter;

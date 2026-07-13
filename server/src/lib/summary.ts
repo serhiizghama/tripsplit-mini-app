@@ -15,6 +15,7 @@ import { botMessages, formatBotMoney, type BotLocale } from './botMessages.js';
 import { getTripBalances } from './balances.js';
 import { getTripInsights } from './insights.js';
 import { getTripMembers } from './members.js';
+import { getTripWrap } from './wrap.js';
 
 /** Callers (route handlers, bot commands) already have this via `requireMembership`/`getTripOrThrow`. */
 export type TripRow = typeof schema.trips.$inferSelect;
@@ -116,4 +117,79 @@ export function buildTopDebtHint(trip: TripRow, locale: BotLocale): string | und
     to: nameFor(biggest.toUserId),
     amount: formatBotMoney(biggest.amountBaseMinor, trip.baseCurrency, locale),
   });
+}
+
+/**
+ * `POST /:id/close`'s farewell card — Trip Wrap plan (`docs/TRIP_WRAP_PLAN.md`)
+ * task W2. A compact celebratory summary built from `getTripWrap` (lib/wrap.ts):
+ * headline stats, up to 3 award lines (sponsor / biggest expense / top
+ * category champion — each shown only when earned, see `computeTripWrap`),
+ * and the settle-state line. Awards like bookkeeper/busiestDay/currencyCollector
+ * are deliberately left off — the card stays short enough to read at a glance;
+ * the full award list lives on the wrap page itself.
+ */
+export function buildTripFarewellMessage(trip: TripRow, locale: BotLocale): string {
+  const msgs = botMessages[locale];
+  const nameFor = nameResolver(trip.id, locale);
+  const wrap = getTripWrap(trip);
+  const money = (amountMinor: number) =>
+    formatBotMoney(amountMinor, wrap.baseCurrency, locale);
+
+  const lines: string[] = [
+    msgs.farewellHeader(wrap.title),
+    msgs.farewellStats({
+      total: money(wrap.totalBaseMinor),
+      expenseCount: wrap.expenseCount,
+      dayCount: wrap.dayCount,
+    }),
+  ];
+
+  const sponsor = wrap.awards.find((a) => a.kind === 'sponsor');
+  if (sponsor?.userId !== undefined && sponsor.amountBaseMinor !== undefined) {
+    lines.push(
+      msgs.farewellSponsor({
+        name: nameFor(sponsor.userId),
+        amount: money(sponsor.amountBaseMinor),
+      }),
+    );
+  }
+
+  const biggestExpense = wrap.awards.find((a) => a.kind === 'biggestExpense');
+  if (
+    biggestExpense?.userId !== undefined &&
+    biggestExpense.amountBaseMinor !== undefined
+  ) {
+    lines.push(
+      msgs.farewellBiggestExpense({
+        name: nameFor(biggestExpense.userId),
+        amount: money(biggestExpense.amountBaseMinor),
+        description: biggestExpense.description,
+      }),
+    );
+  }
+
+  // `awards` lists categoryChampion entries in top-category order (see
+  // wrap.ts), so the first one found here is the #1 category by spend.
+  const topCategory = wrap.awards.find((a) => a.kind === 'categoryChampion');
+  if (
+    topCategory?.userId !== undefined &&
+    topCategory.amountBaseMinor !== undefined &&
+    topCategory.category !== undefined
+  ) {
+    lines.push(
+      msgs.farewellCategoryChampion({
+        name: nameFor(topCategory.userId),
+        amount: money(topCategory.amountBaseMinor),
+        category: topCategory.category,
+      }),
+    );
+  }
+
+  lines.push(
+    wrap.settled
+      ? msgs.farewellSettled()
+      : msgs.farewellOutstanding({ count: wrap.outstandingTransfers.length }),
+  );
+
+  return lines.join('\n');
 }

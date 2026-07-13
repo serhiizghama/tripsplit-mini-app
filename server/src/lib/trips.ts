@@ -48,6 +48,22 @@ export function requireMembership(tripId: string, userId: number): TripRow {
 }
 
 /**
+ * Guards every mutating trip route (expense/settlement create, expense
+ * update/delete) against an archived trip — Trip Wrap plan
+ * (`docs/TRIP_WRAP_PLAN.md`) task W2. Renaming, exporting, and reading a
+ * trip stay allowed once archived; only new/changed money rows are blocked.
+ */
+export function requireActiveTrip(trip: TripRow): void {
+  if (trip.archivedAt) {
+    throw new AppError(
+      409,
+      'trip_archived',
+      'This trip is archived — reopen it to make changes',
+    );
+  }
+}
+
+/**
  * Invite deep link. Uses the BOT deep-link form `https://t.me/<bot>?start=<code>`
  * (NOT the Mini App `t.me/<bot>/<app>?startapp=` form) so invites work without
  * a BotFather-registered Mini App: tapping it makes Telegram send `/start <code>`

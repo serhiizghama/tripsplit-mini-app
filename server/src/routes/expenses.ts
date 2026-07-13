@@ -17,7 +17,7 @@ import {
 } from '../lib/expenses.js';
 import { AppError } from '../lib/errors.js';
 import { notifyExpenseDeleted, notifyExpenseUpdated } from '../lib/notify.js';
-import { requireMembership } from '../lib/trips.js';
+import { requireActiveTrip, requireMembership } from '../lib/trips.js';
 import { currencyCodeSchema, validateJsonBody } from '../lib/validate.js';
 
 const expenseShareInputSchema = z.object({
@@ -55,6 +55,7 @@ expensesRouter.patch('/:id', async (c) => {
   const expenseId = c.req.param('id');
   const existing = getExpenseRowOrThrow(expenseId);
   const trip = requireMembership(existing.tripId, user.id);
+  requireActiveTrip(trip);
 
   if (existing.deletedAt) {
     throw new AppError(404, 'expense_not_found', 'Expense not found');
@@ -74,6 +75,7 @@ expensesRouter.delete('/:id', (c) => {
   const expenseId = c.req.param('id');
   const existing = getExpenseRowOrThrow(expenseId);
   const trip = requireMembership(existing.tripId, user.id);
+  requireActiveTrip(trip);
 
   softDeleteExpense(expenseId);
   // `existing` is read BEFORE the delete — softDeleteExpense only stamps

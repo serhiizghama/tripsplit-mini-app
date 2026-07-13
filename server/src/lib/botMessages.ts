@@ -108,6 +108,31 @@ export interface TransferLineParams {
   amount: string;
 }
 
+export interface FarewellStatsParams {
+  /** Pre-formatted trip total, base currency. */
+  total: string;
+  expenseCount: number;
+  dayCount: number;
+}
+
+export interface FarewellSponsorParams {
+  name: string;
+  amount: string;
+}
+
+export interface FarewellBiggestExpenseParams {
+  name: string;
+  amount: string;
+  description?: string | null;
+}
+
+export interface FarewellCategoryChampionParams {
+  name: string;
+  amount: string;
+  /** Category emoji glyph — see `EXPENSE_CATEGORIES`. */
+  category: string;
+}
+
 export interface BotMessages {
   linkSuccess(tripTitle: string): string;
   linkUnknownCode(): string;
@@ -132,8 +157,22 @@ export interface BotMessages {
   summaryTransferLine(params: TransferLineParams): string;
   summaryAllSettled(): string;
 
+  /** `POST /:id/close`'s farewell card — Trip Wrap plan (`docs/TRIP_WRAP_PLAN.md`) task W2. */
+  farewellHeader(tripTitle: string): string;
+  farewellStats(params: FarewellStatsParams): string;
+  farewellSponsor(params: FarewellSponsorParams): string;
+  farewellBiggestExpense(params: FarewellBiggestExpenseParams): string;
+  farewellCategoryChampion(params: FarewellCategoryChampionParams): string;
+  farewellSettled(): string;
+  farewellOutstanding(params: { count: number }): string;
+
   /** Fallback label for a member whose row isn't loaded — mirrors web's `common.userFallback`. */
   userFallback(id: number): string;
+}
+
+/** `" (Dinner)"` / `""` — biggest-expense award's optional description, shared across locales. */
+function farewellDescriptionSuffix(description?: string | null): string {
+  return description ? ` (${escapeHtml(description)})` : '';
 }
 
 /** `"— 🍜 Dinner"` / `"— Dinner"` / `"— 🍜"` / `""` — shared across locales, no language-specific words. */
@@ -198,6 +237,19 @@ const en: BotMessages = {
     `• ${escapeHtml(from)} → ${escapeHtml(to)}: ${amount}`,
   summaryAllSettled: () => "✅ Everyone's settled up — no transfers needed.",
 
+  farewellHeader: (tripTitle) => `🏁 <b>${escapeHtml(tripTitle)}</b> — finished!`,
+  farewellStats: ({ total, expenseCount, dayCount }) =>
+    `${total} spent · ${expenseCount} expenses · ${dayCount} days`,
+  farewellSponsor: ({ name, amount }) =>
+    `💰 Sponsor: <b>${escapeHtml(name)}</b> — ${amount}`,
+  farewellBiggestExpense: ({ name, amount, description }) =>
+    `💥 Biggest expense: <b>${escapeHtml(name)}</b> — ${amount}${farewellDescriptionSuffix(description)}`,
+  farewellCategoryChampion: ({ name, amount, category }) =>
+    `${escapeHtml(category)} Top category: <b>${escapeHtml(name)}</b> — ${amount}`,
+  farewellSettled: () => "✅ Everyone's settled up!",
+  farewellOutstanding: ({ count }) =>
+    `🤝 ${count} transfer${count === 1 ? '' : 's'} outstanding — see the wrap for details.`,
+
   userFallback: (id) => `User ${id}`,
 };
 
@@ -246,6 +298,20 @@ const ru: BotMessages = {
     `• ${escapeHtml(from)} → ${escapeHtml(to)}: ${amount}`,
   summaryAllSettled: () => '✅ Все расчёты закрыты — переводов не требуется.',
 
+  farewellHeader: (tripTitle) =>
+    `🏁 «<b>${escapeHtml(tripTitle)}</b>» — поездка завершена!`,
+  farewellStats: ({ total, expenseCount, dayCount }) =>
+    `${total} потрачено · Расходов: ${expenseCount} · Дней: ${dayCount}`,
+  farewellSponsor: ({ name, amount }) =>
+    `💰 Спонсор: <b>${escapeHtml(name)}</b> — ${amount}`,
+  farewellBiggestExpense: ({ name, amount, description }) =>
+    `💥 Самая крупная трата: <b>${escapeHtml(name)}</b> — ${amount}${farewellDescriptionSuffix(description)}`,
+  farewellCategoryChampion: ({ name, amount, category }) =>
+    `${escapeHtml(category)} Топ категория: <b>${escapeHtml(name)}</b> — ${amount}`,
+  farewellSettled: () => '✅ Все расчёты закрыты!',
+  farewellOutstanding: ({ count }) =>
+    `🤝 Осталось переводов: ${count} — детали в итогах поездки.`,
+
   userFallback: (id) => `Пользователь ${id}`,
 };
 
@@ -293,6 +359,20 @@ const uk: BotMessages = {
   summaryTransferLine: ({ from, to, amount }) =>
     `• ${escapeHtml(from)} → ${escapeHtml(to)}: ${amount}`,
   summaryAllSettled: () => '✅ Усі розрахунки закрито — перекази не потрібні.',
+
+  farewellHeader: (tripTitle) =>
+    `🏁 «<b>${escapeHtml(tripTitle)}</b>» — подорож завершено!`,
+  farewellStats: ({ total, expenseCount, dayCount }) =>
+    `${total} витрачено · Витрат: ${expenseCount} · Днів: ${dayCount}`,
+  farewellSponsor: ({ name, amount }) =>
+    `💰 Спонсор: <b>${escapeHtml(name)}</b> — ${amount}`,
+  farewellBiggestExpense: ({ name, amount, description }) =>
+    `💥 Найбільша витрата: <b>${escapeHtml(name)}</b> — ${amount}${farewellDescriptionSuffix(description)}`,
+  farewellCategoryChampion: ({ name, amount, category }) =>
+    `${escapeHtml(category)} Топ категорія: <b>${escapeHtml(name)}</b> — ${amount}`,
+  farewellSettled: () => '✅ Усі розрахунки закрито!',
+  farewellOutstanding: ({ count }) =>
+    `🤝 Залишилось переказів: ${count} — деталі в підсумках подорожі.`,
 
   userFallback: (id) => `Користувач ${id}`,
 };

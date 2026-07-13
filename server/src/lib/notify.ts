@@ -27,7 +27,7 @@ import {
 import { sendBotMessage } from './botSend.js';
 import { logger } from './logger.js';
 import { getTripMembers } from './members.js';
-import { buildTopDebtHint, type TripRow } from './summary.js';
+import { buildTopDebtHint, buildTripFarewellMessage, type TripRow } from './summary.js';
 import { getLinkedChats } from './tripChats.js';
 
 /** Whoever performed the mutation — the route's `c.get('user')` row satisfies this. */
@@ -143,6 +143,18 @@ export function notifyExpenseDeleted(
     return botMessages[locale].expenseDeleted(
       expenseNudgeParams(actor, trip, expense, locale),
     );
+  });
+}
+
+/**
+ * `POST /:id/close`'s farewell card — Trip Wrap plan (`docs/TRIP_WRAP_PLAN.md`)
+ * task W2. `trip` must already reflect the closed state (`archivedAt` set)
+ * since `buildTripFarewellMessage` reads it back through `getTripWrap`.
+ */
+export function notifyTripClosed(trip: TripRow, actor: NudgeActor): Promise<void> {
+  return sendNudgeToLinkedChats(trip, () => {
+    const locale = resolveBotLocale(actor.lang);
+    return buildTripFarewellMessage(trip, locale);
   });
 }
 
