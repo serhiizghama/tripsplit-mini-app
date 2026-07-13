@@ -99,6 +99,18 @@
   "settings.exchangeRateApiName": "Exchange Rate API",
   "settings.language": "Язык",
   "settings.languageFooter": "Выберите язык приложения.",
+  "settings.groupNudges": "Уведомления в группе",
+  "settings.groupNudgesChatFallback": "Групповой чат",
+  "settings.groupNudgesEmpty": "Пока не привязан",
+  "settings.groupNudgesEmptyFooter": "Привяжите эту поездку к групповому чату в Telegram, чтобы расходы и расчёты публиковались туда автоматически.",
+  "settings.groupNudgesLinkedFooter": {
+    "one": "Обновления о расходах и расчётах публикуются в этом групповом чате.",
+    "few": "Обновления о расходах и расчётах публикуются в {count} групповых чатах.",
+    "many": "Обновления о расходах и расчётах публикуются в {count} групповых чатах."
+  },
+  "settings.groupNudgesLinkCommand": "Команда для привязки",
+  "settings.groupNudgesCommandCopied": "Команда скопирована в буфер обмена",
+  "settings.groupNudgesHowTo": "Добавьте бота TripSplit в групповой чат этой поездки и отправьте туда эту команду. После привязки расходы и расчёты будут публиковаться автоматически — /summary в любой момент покажет итоги, /unlink остановит уведомления.",
   "createTrip.header": "Новая поездка",
   "createTrip.footer": "Подходит для поездки, общей квартиры или любой компании, которая делит расходы, — пригласить остальных можно после создания.",
   "createTrip.titleLabel": "Название",

@@ -97,6 +97,17 @@
   "settings.exchangeRateApiName": "Exchange Rate API",
   "settings.language": "Language",
   "settings.languageFooter": "Choose the app's language.",
+  "settings.groupNudges": "Group notifications",
+  "settings.groupNudgesChatFallback": "Group chat",
+  "settings.groupNudgesEmpty": "Not linked yet",
+  "settings.groupNudgesEmptyFooter": "Link this trip to a Telegram group chat so expenses and settlements get posted there automatically.",
+  "settings.groupNudgesLinkedFooter": {
+    "one": "Posting expense and settlement updates to this group chat.",
+    "other": "Posting expense and settlement updates to {count} group chats."
+  },
+  "settings.groupNudgesLinkCommand": "Link command",
+  "settings.groupNudgesCommandCopied": "Command copied to clipboard",
+  "settings.groupNudgesHowTo": "Add the TripSplit bot to your trip's group chat, then send this command there. Expenses and settlements get announced automatically once linked — send /summary anytime for full totals, or /unlink to stop.",
   "createTrip.header": "New trip",
   "createTrip.footer": "Works for a trip, a shared flat, or any group splitting costs together — you can invite others once it's created.",
   "createTrip.titleLabel": "Title",

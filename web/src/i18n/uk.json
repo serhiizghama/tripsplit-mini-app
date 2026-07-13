@@ -99,6 +99,18 @@
   "settings.exchangeRateApiName": "Exchange Rate API",
   "settings.language": "Мова",
   "settings.languageFooter": "Оберіть мову застосунку.",
+  "settings.groupNudges": "Сповіщення в групі",
+  "settings.groupNudgesChatFallback": "Груповий чат",
+  "settings.groupNudgesEmpty": "Поки не прив'язано",
+  "settings.groupNudgesEmptyFooter": "Прив'яжіть цю подорож до групового чату в Telegram, щоб витрати та розрахунки публікувалися там автоматично.",
+  "settings.groupNudgesLinkedFooter": {
+    "one": "Оновлення про витрати й розрахунки публікуються в цьому груповому чаті.",
+    "few": "Оновлення про витрати й розрахунки публікуються в {count} групових чатах.",
+    "many": "Оновлення про витрати й розрахунки публікуються в {count} групових чатах."
+  },
+  "settings.groupNudgesLinkCommand": "Команда для прив'язки",
+  "settings.groupNudgesCommandCopied": "Команду скопійовано до буфера обміну",
+  "settings.groupNudgesHowTo": "Додайте бота TripSplit до групового чату цієї подорожі та надішліть туди цю команду. Після прив'язки витрати й розрахунки публікуватимуться автоматично — /summary будь-коли покаже підсумки, /unlink зупинить сповіщення.",
   "createTrip.header": "Нова подорож",
   "createTrip.footer": "Підходить для подорожі, спільної квартири або будь-якої компанії, що ділить витрати, — запросити інших можна після створення.",
   "createTrip.titleLabel": "Назва",

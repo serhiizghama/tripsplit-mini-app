@@ -12,7 +12,7 @@
  */
 import { Button, List, Segmented, Toast } from 'antd-mobile';
 import { hapticFeedback } from '@tma.js/sdk-react';
-import type { TripMemberView } from '@tripsplit/shared';
+import type { LinkedChat, TripMemberView } from '@tripsplit/shared';
 import { useNavigate } from 'react-router';
 
 import { useCurrentTrip, useMe } from '../api/queries';
@@ -22,6 +22,7 @@ import { MemberAvatar } from '../components/MemberAvatar';
 import { EmptyState, ErrorState, SectionTitle } from '../components/ui';
 import { LOCALE_NATIVE_NAMES, SUPPORTED_LOCALES, useFormatters, useLocale, useT } from '../i18n';
 import type { Locale } from '../i18n';
+import { linkedChatLabel } from '../lib/linkedChats';
 import { copyToClipboard, shareInviteLink } from '../telegram/share';
 import './screens.css';
 
@@ -84,6 +85,60 @@ function InviteSection({
   );
 }
 
+/**
+ * "Group notifications" — Export & Group Nudges plan T7. Status (which group
+ * chats this trip posts to) plus the `/link <code>` instructions, reusing the
+ * invite section's copy-to-clipboard pattern for the command string since
+ * the bot only reads it from within the group chat itself.
+ */
+function GroupNudgesSection({
+  linkedChats,
+  inviteCode,
+}: {
+  linkedChats: LinkedChat[];
+  inviteCode: string;
+}) {
+  const t = useT();
+  const linkCommand = `/link ${inviteCode}`;
+
+  async function handleCopy() {
+    Toast.show({
+      content: (await copyToClipboard(linkCommand)) ? t('settings.groupNudgesCommandCopied') : t('settings.copyFailed'),
+      position: 'bottom',
+    });
+  }
+
+  return (
+    <>
+      <SectionTitle>{t('settings.groupNudges')}</SectionTitle>
+      <List mode="card">
+        {linkedChats.length > 0 ? (
+          linkedChats.map((chat) => (
+            <List.Item key={chat.chatId}>{linkedChatLabel(chat, t)}</List.Item>
+          ))
+        ) : (
+          <List.Item>{t('settings.groupNudgesEmpty')}</List.Item>
+        )}
+      </List>
+      <div className="ts-section-hint">
+        {linkedChats.length > 0
+          ? t('settings.groupNudgesLinkedFooter', { count: linkedChats.length })
+          : t('settings.groupNudgesEmptyFooter')}
+      </div>
+
+      <List mode="card">
+        <List.Item description={linkCommand}>{t('settings.groupNudgesLinkCommand')}</List.Item>
+      </List>
+      <div className="ts-inline-actions" style={{ paddingLeft: 16, paddingRight: 16 }}>
+        <Button fill="outline" size="small" onClick={() => void handleCopy()}>
+          {t('settings.copy')}
+        </Button>
+      </div>
+      <div className="ts-section-hint">{t('settings.groupNudgesHowTo')}</div>
+    </>
+  );
+}
+
 function TripSection() {
   const { tripId, trip } = useCurrentTrip();
   const navigate = useNavigate();
@@ -137,6 +192,8 @@ function TripSection() {
       </List>
 
       <InviteSection inviteLink={trip.data.inviteLink} tripTitle={trip.data.title} />
+
+      <GroupNudgesSection linkedChats={trip.data.linkedChats} inviteCode={trip.data.inviteCode} />
     </>
   );
 }
