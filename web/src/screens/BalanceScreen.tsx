@@ -11,10 +11,11 @@
  * Redesigned onto antd-mobile (hero card + card-mode `List`s); all balance
  * math, routing, and i18n are unchanged.
  */
-import { Button, List } from 'antd-mobile';
+import { Button, List, Toast } from 'antd-mobile';
 import type { MemberBalance, TransferSuggestion, TripMemberView } from '@tripsplit/shared';
 import { useNavigate } from 'react-router';
 
+import { useExportTrip } from '../api/mutations';
 import { useBalances, useCurrentTrip } from '../api/queries';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { MemberAvatar } from '../components/MemberAvatar';
@@ -22,6 +23,7 @@ import { TripSwitcherBar } from '../components/TripSwitcherBar';
 import { EmptyState, ErrorState, SectionTitle } from '../components/ui';
 import { useFormatters, useT } from '../i18n';
 import type { Translator } from '../i18n';
+import { exportSuccessMessage } from '../lib/exportSummary';
 import './screens.css';
 
 function memberFirstName(t: Translator, member: TripMemberView | undefined, userId: number): string {
@@ -180,6 +182,46 @@ function PersonTotalRow({
   );
 }
 
+/**
+ * Posts the trip summary to the linked group chat, falling back to a DM —
+ * plan T6. Always shown (works with or without a linked chat, the server
+ * decides delivery), so it's a plain button rather than gated on `trip.data`.
+ */
+function ExportSection({ tripId }: { tripId: string }) {
+  const t = useT();
+  const exportTrip = useExportTrip(tripId);
+
+  function handleExport() {
+    exportTrip.mutate(undefined, {
+      onSuccess: (response) => {
+        Toast.show({ content: exportSuccessMessage(t, response), position: 'bottom' });
+      },
+      onError: () => {
+        Toast.show({ content: t('balance.exportError'), position: 'bottom' });
+      },
+    });
+  }
+
+  return (
+    <>
+      <SectionTitle>{t('balance.export')}</SectionTitle>
+      <div className="ts-inline-actions" style={{ paddingLeft: 16, paddingRight: 16 }}>
+        <Button
+          color="primary"
+          fill="outline"
+          size="small"
+          loading={exportTrip.isPending}
+          disabled={exportTrip.isPending}
+          onClick={handleExport}
+        >
+          {t('balance.exportAction')}
+        </Button>
+      </div>
+      <div className="ts-section-hint">{t('balance.exportFooter')}</div>
+    </>
+  );
+}
+
 export function BalanceScreen() {
   const navigate = useNavigate();
   const { me, tripId, trip } = useCurrentTrip();
@@ -307,6 +349,8 @@ export function BalanceScreen() {
           <div className="ts-section-hint">{t('balance.spendByCurrencyFooter')}</div>
         </>
       )}
+
+      <ExportSection tripId={tripId} />
       <div style={{ height: 12 }} />
     </>
   );

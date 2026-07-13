@@ -41,6 +41,19 @@ export function handleQueryError(err: unknown): void {
 }
 
 /**
+ * Same as `handleQueryError`, but for mutations only: skips the toast
+ * entirely when `meta: { silent: true }` — the caller already shows its own,
+ * more specific (and localized) error toast from the mutation's own
+ * `onError` (e.g. `BalanceScreen`'s export button), so a second, generic
+ * English one would just be noise. Exported for the same reason as
+ * `handleQueryError` — unit-testable without rendering anything.
+ */
+export function handleMutationError(err: unknown, meta: { silent?: boolean } | undefined): void {
+  if (meta?.silent) return;
+  handleQueryError(err);
+}
+
+/**
  * Plan §3: "the server is the single source of truth; no clever client
  * caches" — refetch-on-focus/reconnect are TanStack Query's own defaults,
  * kept explicit here so that intent survives a future default change.
@@ -68,5 +81,7 @@ export const queryClient = new QueryClient({
     },
   },
   queryCache: new QueryCache({ onError: handleQueryError }),
-  mutationCache: new MutationCache({ onError: handleQueryError }),
+  mutationCache: new MutationCache({
+    onError: (err, _variables, _context, mutation) => handleMutationError(err, mutation.meta),
+  }),
 });

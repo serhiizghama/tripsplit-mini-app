@@ -15,6 +15,7 @@ import type {
   CreateTripRequest,
   CreateTripResponse,
   ExpenseWithShares,
+  ExportTripResponse,
   JoinTripRequest,
   MeResponse,
   TripDetail,
@@ -140,5 +141,21 @@ export function useCreateSettlement(tripId: string | undefined) {
         void queryClient.invalidateQueries({ queryKey: balancesQueryKey(tripId) });
       }
     },
+  });
+}
+
+/**
+ * `POST /api/trips/:id/export` — Export & Group Nudges plan T6. No cache to
+ * invalidate: posting/DM-ing a summary doesn't change any trip/balance state.
+ * `meta: { silent: true }` — the caller shows its own localized error toast,
+ * see `queryClient.ts`'s `mutationCache`.
+ */
+export function useExportTrip(tripId: string | undefined) {
+  return useMutation({
+    mutationFn: () => {
+      if (!tripId) return Promise.reject(new Error('No active trip'));
+      return apiClient.post<ExportTripResponse>(`/trips/${tripId}/export`);
+    },
+    meta: { silent: true },
   });
 }

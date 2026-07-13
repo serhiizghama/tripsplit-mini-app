@@ -9,7 +9,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { ApiError } from './client';
-import { handleQueryError } from './queryClient';
+import { handleMutationError, handleQueryError } from './queryClient';
 import { isAuthExpired, resetAuthExpiredForTests } from '../lib/authExpiredBus';
 import { subscribeToast } from '../lib/toastBus';
 
@@ -64,6 +64,30 @@ describe('handleQueryError', () => {
 
     expect(isAuthExpired()).toBe(false);
     expect(toastMessages).toEqual(['Not a member']);
+    unsubscribe();
+  });
+});
+
+describe('handleMutationError', () => {
+  it('skips the toast when the mutation opts out via meta: { silent: true }', () => {
+    const toastMessages: string[] = [];
+    const unsubscribe = subscribeToast((message) => toastMessages.push(message));
+
+    handleMutationError(new ApiError(502, { code: 'export_failed', message: 'Could not deliver' }), {
+      silent: true,
+    });
+
+    expect(toastMessages).toEqual([]);
+    unsubscribe();
+  });
+
+  it('falls through to handleQueryError when meta is absent or not silent', () => {
+    const toastMessages: string[] = [];
+    const unsubscribe = subscribeToast((message) => toastMessages.push(message));
+
+    handleMutationError(new ApiError(500, { code: 'internal_error', message: 'Broke' }), undefined);
+
+    expect(toastMessages).toEqual(['Broke']);
     unsubscribe();
   });
 });
