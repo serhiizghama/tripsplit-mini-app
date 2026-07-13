@@ -68,6 +68,19 @@ async function exportTrip(
   });
 }
 
+async function shareWrap(
+  app: TestApp['app'],
+  tripId: string,
+  userId: number,
+  firstName = 'Test',
+  languageCode?: string,
+) {
+  return app.request(`/api/trips/${tripId}/wrap/share`, {
+    method: 'POST',
+    headers: { Authorization: authHeaderFor(userId, firstName, languageCode) },
+  });
+}
+
 interface SentCall {
   chatId: number;
   text: string;
@@ -249,6 +262,59 @@ describe('POST /api/trips/:id/export', () => {
     expect(res.status).toBe(200);
     expect(calls[0].text).toContain('Отпуск');
     expect(calls[0].text).toContain('итоги'); // ru summaryHeader, see botMessages.ts
+  });
+});
+
+describe('POST /api/trips/:id/wrap/share', () => {
+  let current: TestApp | undefined;
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    current?.cleanup();
+    current = undefined;
+  });
+
+  it('with a linked chat: posts the farewell card to the group chat and responds delivered: group', async () => {
+    current = await bootTestApp();
+    const { app } = current;
+    const trip = await createTrip(app, 1, 'Bali');
+    const { linkTripChat } = await import('../src/lib/tripChats.js');
+    linkTripChat({ inviteCode: trip.inviteCode, chatId: -100, linkedBy: 1 });
+
+    const calls = stubTelegramFetch();
+    const res = await shareWrap(app, trip.id, 1);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ delivered: 'group' });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].chatId).toBe(-100);
+    expect(calls[0].text).toContain('Bali');
+  });
+
+  it('without a linked chat: DMs the requesting user and responds delivered: dm', async () => {
+    current = await bootTestApp();
+    const { app } = current;
+    const trip = await createTrip(app, 1, 'Bali');
+
+    const calls = stubTelegramFetch();
+    const res = await shareWrap(app, trip.id, 1);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ delivered: 'dm' });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].chatId).toBe(1); // DM = the requesting user's own chat id
+  });
+
+  it('when every send fails, responds with export_failed', async () => {
+    current = await bootTestApp();
+    const { app } = current;
+    const trip = await createTrip(app, 1, 'Bali');
+
+    stubFailingTelegramFetch();
+    const res = await shareWrap(app, trip.id, 1);
+
+    expect(res.status).toBe(502);
+    expect(await res.json()).toMatchObject({ code: 'export_failed' });
   });
 });
 

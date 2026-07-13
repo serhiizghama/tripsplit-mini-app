@@ -17,6 +17,7 @@ import { SettingsScreen } from './screens/SettingsScreen';
 import { SettlementSheet } from './screens/SettlementSheet';
 import { StatsScreen } from './screens/StatsScreen';
 import { TripSwitcherSheet } from './screens/TripSwitcherSheet';
+import { WrapScreen } from './screens/WrapScreen';
 
 /**
  * App skeleton: Feed / Balance / Stats / Settings behind the bottom-nav shell, plus
@@ -29,7 +30,10 @@ import { TripSwitcherSheet } from './screens/TripSwitcherSheet';
  * "Settle" button (which passes the prefilled transfer through router
  * `state`) — see `SettlementSheet`. `/trips` (trip switcher) is the same
  * pattern again — reached from `TripSwitcherBar` or the Settings "switch or
- * add trip" row — see `TripSwitcherSheet`.
+ * add trip" row — see `TripSwitcherSheet`. `/wrap` (Trip Wrap plan task W3)
+ * is the same standalone pattern once more — a live preview on an active
+ * trip, the destination after "Finish trip" once W4 wires that button up —
+ * see `WrapScreen`.
  */
 function App() {
   // Phase 8.4: a 401 from any query/mutation (`api/queryClient.ts`'s
@@ -85,6 +89,7 @@ function App() {
           <Route path="expense/:expenseId" element={<AddExpenseSheet />} />
           <Route path="settle" element={<SettlementSheet />} />
           <Route path="trips" element={<TripSwitcherSheet />} />
+          <Route path="wrap" element={<WrapScreen />} />
         </Routes>
       </BrowserRouter>
     </ConfigProvider>

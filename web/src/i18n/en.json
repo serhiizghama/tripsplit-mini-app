@@ -187,6 +187,53 @@
   "settle.confirm": "Confirm settlement",
   "settle.errorGeneric": "Something went wrong",
   "settle.loadErrorHeader": "Couldn't load this trip",
+  "wrap.title": "Trip wrapped",
+  "wrap.noTripHeader": "No trip yet",
+  "wrap.noTripDescription": "Create or join a trip to see its wrap-up here.",
+  "wrap.loadErrorHeader": "Couldn't load the wrap-up",
+  "wrap.dayCount": {
+    "one": "{count} day",
+    "other": "{count} days"
+  },
+  "wrap.currencyCount": {
+    "one": "{count} currency",
+    "other": "{count} currencies"
+  },
+  "wrap.awardsHeader": "Awards",
+  "wrap.awardSponsor": "Sponsor of the trip",
+  "wrap.awardBookkeeper": "The bookkeeper",
+  "wrap.awardBiggestExpense": "Biggest splurge",
+  "wrap.awardBusiestDay": "Busiest day",
+  "wrap.awardPriciestDay": "Priciest day",
+  "wrap.awardCurrencyCollector": "Currency collector",
+  "wrap.awardCategoryChampion": "{category} champion",
+  "wrap.awardSettlements": "Settle-ups",
+  "wrap.expensesLogged": {
+    "one": "{count} expense logged",
+    "other": "{count} expenses logged"
+  },
+  "wrap.expensesOnDay": {
+    "one": "{count} expense · {date}",
+    "other": "{count} expenses · {date}"
+  },
+  "wrap.priciestDayDetail": "{amount} · {date}",
+  "wrap.currenciesCount": {
+    "one": "paid in {count} currency",
+    "other": "paid in {count} currencies"
+  },
+  "wrap.settlementsDetail": {
+    "one": "{count} settlement · {amount}",
+    "other": "{count} settlements · {amount}"
+  },
+  "wrap.settled": "Everyone's settled up.",
+  "wrap.outstandingHeader": "Still outstanding",
+  "wrap.share": "Share",
+  "wrap.shareAction": "Share to chat",
+  "wrap.shareFooter": "Posts the farewell card to the linked group chat, or sends it to you here if no chat is linked.",
+  "wrap.shareSuccessGroup": "Wrap posted to the group chat",
+  "wrap.shareSuccessDm": "Wrap sent to you in the bot chat",
+  "wrap.shareError": "Couldn't send the wrap — check that the bot is reachable",
+  "wrap.previewNotice": "Preview — this trip isn't finished yet, so the numbers can still change.",
   "currency.searchPlaceholder": "Search all currencies (e.g. JPY)",
   "currency.noMatch": "No matching currency",
   "toast.offline": "You're offline — check your connection",

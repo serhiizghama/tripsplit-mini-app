@@ -41,6 +41,9 @@
   --ts-hero-owe: linear-gradient(135deg, #ff6a5a 0%, #ff2d55 100%);
   --ts-hero-settled: linear-gradient(135deg, #4c93ff 0%, #1677ff 100%);
   --ts-brand: linear-gradient(135deg, #4c93ff 0%, #1677ff 100%);
+  /* Wrap screen hero — celebratory, deliberately distinct from the
+     owed/owe/settled trio above (this hue carries no balance meaning). */
+  --ts-hero-wrap: linear-gradient(135deg, #7b5cff 0%, #ff5c8a 60%, #ffb020 100%);
 
   --ts-shadow-card: 0 1px 2px rgba(20, 23, 28, 0.04);
   --ts-shadow-float: 0 8px 28px rgba(20, 23, 28, 0.16);

@@ -111,11 +111,21 @@
 .ts-hero--settled {
   background: var(--ts-hero-settled);
 }
+.ts-hero--wrap {
+  background: var(--ts-hero-wrap);
+}
 
 .ts-hero-eyebrow {
   font-size: 14px;
   font-weight: 500;
   opacity: 0.92;
+}
+
+/* Wrap hero's date range, between the eyebrow and the big total. */
+.ts-hero-sub {
+  margin-top: 2px;
+  font-size: 12.5px;
+  opacity: 0.8;
 }
 
 .ts-hero-amount {

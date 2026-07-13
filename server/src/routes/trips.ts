@@ -38,7 +38,7 @@ import {
   notifySettlementCreated,
   notifyTripClosed,
 } from '../lib/notify.js';
-import { buildTripSummaryMessage } from '../lib/summary.js';
+import { buildTripFarewellMessage, buildTripSummaryMessage } from '../lib/summary.js';
 import { getLinkedChats } from '../lib/tripChats.js';
 import {
   buildInviteLink,
@@ -411,6 +411,49 @@ tripsRouter.get('/:id/wrap', (c) => {
   const trip = requireMembership(tripId, user.id);
 
   const response: TripWrapResponse = getTripWrap(trip);
+  return c.json(response);
+});
+
+// POST /api/trips/:id/wrap/share — Trip Wrap plan task W3's "share" button.
+// Same delivery rules as `/export` (linked chat(s) else DM, 502 export_failed
+// if even the DM fails) but posts the farewell card instead of the running
+// summary — lets a member re-send the wrap-up card any time after close, not
+// just the one fire-and-forget send `/close` itself makes.
+tripsRouter.post('/:id/wrap/share', async (c) => {
+  const user = c.get('user');
+  const tripId = c.req.param('id');
+  const trip = requireMembership(tripId, user.id);
+
+  const botToken = process.env.BOT_TOKEN;
+  if (!botToken) {
+    throw new AppError(
+      502,
+      'export_failed',
+      'Bot is not configured — export cannot be delivered',
+    );
+  }
+
+  const locale = resolveBotLocale(user.lang);
+  const html = buildTripFarewellMessage(trip, locale);
+
+  const linkedChats = getLinkedChats(tripId);
+  if (linkedChats.length > 0) {
+    const results = await Promise.all(
+      linkedChats.map((chat) => sendBotMessage(botToken, chat.chatId, html)),
+    );
+    if (results.some(Boolean)) {
+      const response: ExportTripResponse = { delivered: 'group' };
+      return c.json(response);
+    }
+    // Every linked chat send failed (e.g. all auto-unlinked mid-flight) — fall through to DM.
+  }
+
+  const dmDelivered = await sendBotMessage(botToken, user.id, html);
+  if (!dmDelivered) {
+    throw new AppError(502, 'export_failed', 'Could not deliver the trip export');
+  }
+
+  const response: ExportTripResponse = { delivered: 'dm' };
   return c.json(response);
 });
 

@@ -191,6 +191,59 @@
   "settle.confirm": "Подтвердить расчёт",
   "settle.errorGeneric": "Что-то пошло не так",
   "settle.loadErrorHeader": "Не удалось загрузить поездку",
+  "wrap.title": "Итоги поездки",
+  "wrap.noTripHeader": "Пока нет поездки",
+  "wrap.noTripDescription": "Создайте или присоединитесь к поездке, чтобы увидеть её итоги.",
+  "wrap.loadErrorHeader": "Не удалось загрузить итоги",
+  "wrap.dayCount": {
+    "one": "{count} день",
+    "few": "{count} дня",
+    "many": "{count} дней"
+  },
+  "wrap.currencyCount": {
+    "one": "{count} валюта",
+    "few": "{count} валюты",
+    "many": "{count} валют"
+  },
+  "wrap.awardsHeader": "Награды",
+  "wrap.awardSponsor": "Спонсор поездки",
+  "wrap.awardBookkeeper": "Бухгалтер",
+  "wrap.awardBiggestExpense": "Самая большая трата",
+  "wrap.awardBusiestDay": "Самый насыщенный день",
+  "wrap.awardPriciestDay": "Самый дорогой день",
+  "wrap.awardCurrencyCollector": "Коллекционер валют",
+  "wrap.awardCategoryChampion": "Чемпион в категории «{category}»",
+  "wrap.awardSettlements": "Расчёты",
+  "wrap.expensesLogged": {
+    "one": "{count} расход записан",
+    "few": "{count} расхода записано",
+    "many": "{count} расходов записано"
+  },
+  "wrap.expensesOnDay": {
+    "one": "{count} расход · {date}",
+    "few": "{count} расхода · {date}",
+    "many": "{count} расходов · {date}"
+  },
+  "wrap.priciestDayDetail": "{amount} · {date}",
+  "wrap.currenciesCount": {
+    "one": "оплачено в {count} валюте",
+    "few": "оплачено в {count} валютах",
+    "many": "оплачено в {count} валютах"
+  },
+  "wrap.settlementsDetail": {
+    "one": "{count} расчёт · {amount}",
+    "few": "{count} расчёта · {amount}",
+    "many": "{count} расчётов · {amount}"
+  },
+  "wrap.settled": "Все в расчёте.",
+  "wrap.outstandingHeader": "Осталось перевести",
+  "wrap.share": "Поделиться",
+  "wrap.shareAction": "Отправить в чат",
+  "wrap.shareFooter": "Публикует прощальную карточку в привязанный групповой чат, либо присылает её вам сюда, если чат не привязан.",
+  "wrap.shareSuccessGroup": "Итоги отправлены в групповой чат",
+  "wrap.shareSuccessDm": "Итоги отправлены вам в чат с ботом",
+  "wrap.shareError": "Не удалось отправить итоги — проверьте, что бот доступен",
+  "wrap.previewNotice": "Предпросмотр — поездка ещё не завершена, цифры могут измениться.",
   "currency.searchPlaceholder": "Поиск по всем валютам (например, JPY)",
   "currency.noMatch": "Валюта не найдена",
   "toast.offline": "Нет подключения — проверьте интернет",

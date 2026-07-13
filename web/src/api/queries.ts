@@ -5,6 +5,7 @@ import type {
   MeResponse,
   TripDetail,
   TripJoinInfo,
+  TripWrapResponse,
 } from '@tripsplit/shared';
 
 import { resolveActiveTripId, useActiveTrip } from '../lib/activeTrip';
@@ -64,13 +65,15 @@ export function useCurrentTrip() {
 export function useTripJoinInfo(code: string | undefined) {
   return useQuery<TripJoinInfo, ApiError>({
     queryKey: ['trips', 'join-info', code] as const,
-    queryFn: () => apiClient.get<TripJoinInfo>(`/trips/join-info?code=${encodeURIComponent(code!)}`),
+    queryFn: () =>
+      apiClient.get<TripJoinInfo>(`/trips/join-info?code=${encodeURIComponent(code!)}`),
     enabled: code !== undefined,
     retry: false,
   });
 }
 
-export const balancesQueryKey = (tripId: string) => ['trips', tripId, 'balances'] as const;
+export const balancesQueryKey = (tripId: string) =>
+  ['trips', tripId, 'balances'] as const;
 
 /**
  * `GET /api/trips/:id/balances` — Phase 6.1/§5. Its own query (rather than
@@ -89,7 +92,8 @@ export function useBalances(tripId: string | undefined) {
   });
 }
 
-export const insightsQueryKey = (tripId: string) => ['trips', tripId, 'insights'] as const;
+export const insightsQueryKey = (tripId: string) =>
+  ['trips', tripId, 'insights'] as const;
 
 /**
  * `GET /api/trips/:id/insights` — the Statistics tab's data source. Its own
@@ -100,6 +104,23 @@ export function useInsights(tripId: string | undefined) {
   return useQuery<InsightsResponse, ApiError>({
     queryKey: insightsQueryKey(tripId ?? 'none'),
     queryFn: () => apiClient.get<InsightsResponse>(`/trips/${tripId}/insights`),
+    enabled: tripId !== undefined,
+  });
+}
+
+export const wrapQueryKey = (tripId: string) => ['trips', tripId, 'wrap'] as const;
+
+/**
+ * `GET /api/trips/:id/wrap` — the Trip Wrap screen's data source
+ * (`docs/TRIP_WRAP_PLAN.md` task W3). Its own query, same reasoning as
+ * `useBalances`/`useInsights`: works on an active trip too (a live preview,
+ * not just after close), so it can't ride along on `useTrip`'s feed-driven
+ * refetch cadence.
+ */
+export function useTripWrap(tripId: string | undefined) {
+  return useQuery<TripWrapResponse, ApiError>({
+    queryKey: wrapQueryKey(tripId ?? 'none'),
+    queryFn: () => apiClient.get<TripWrapResponse>(`/trips/${tripId}/wrap`),
     enabled: tripId !== undefined,
   });
 }

@@ -19,12 +19,13 @@ import type {
   JoinTripRequest,
   MeResponse,
   TripDetail,
+  TripWrapResponse,
   UpdateExpenseRequest,
   UpdateMeRequest,
 } from '@tripsplit/shared';
 
 import { apiClient } from './client';
-import { balancesQueryKey, meQueryKey, tripQueryKey } from './queries';
+import { balancesQueryKey, meQueryKey, tripQueryKey, wrapQueryKey } from './queries';
 
 /**
  * `PATCH /api/me` — Phase 7 §9's "user override stored in `users.lang`". The
@@ -155,6 +156,70 @@ export function useExportTrip(tripId: string | undefined) {
     mutationFn: () => {
       if (!tripId) return Promise.reject(new Error('No active trip'));
       return apiClient.post<ExportTripResponse>(`/trips/${tripId}/export`);
+    },
+    meta: { silent: true },
+  });
+}
+
+/**
+ * `POST /api/trips/:id/close` — "Finish trip" (Trip Wrap plan task W4, wired
+ * here in W3 for the Wrap screen's own use). Stamps `archivedAt` and returns
+ * the wrap payload, so the mutation both invalidates `tripQueryKey` (the
+ * archived flag every screen reads) and seeds `wrapQueryKey` directly — no
+ * reason to pay for a second round trip when the response already is the
+ * wrap page's data. `meQueryKey` too: `archivedAt` also rides along on
+ * `/api/me`'s trip list (`TripSummary extends Trip`), which drives the trip
+ * switcher's archived badge.
+ */
+export function useCloseTrip(tripId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => {
+      if (!tripId) return Promise.reject(new Error('No active trip'));
+      return apiClient.post<TripWrapResponse>(`/trips/${tripId}/close`);
+    },
+    onSuccess: (data) => {
+      if (!tripId) return;
+      queryClient.setQueryData(wrapQueryKey(tripId), data);
+      void queryClient.invalidateQueries({ queryKey: tripQueryKey(tripId) });
+      void queryClient.invalidateQueries({ queryKey: meQueryKey });
+    },
+  });
+}
+
+/**
+ * `POST /api/trips/:id/reopen` — the undo path for `/close` (task W4). Same
+ * invalidation set as `useCloseTrip` minus the wrap-seed: a reopened trip's
+ * wrap page is still valid (it's just a live preview again), no need to
+ * throw away what's cached.
+ */
+export function useReopenTrip(tripId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => {
+      if (!tripId) return Promise.reject(new Error('No active trip'));
+      return apiClient.post<TripDetail>(`/trips/${tripId}/reopen`);
+    },
+    onSuccess: () => {
+      if (!tripId) return;
+      void queryClient.invalidateQueries({ queryKey: tripQueryKey(tripId) });
+      void queryClient.invalidateQueries({ queryKey: wrapQueryKey(tripId) });
+      void queryClient.invalidateQueries({ queryKey: meQueryKey });
+    },
+  });
+}
+
+/**
+ * `POST /api/trips/:id/wrap/share` — the Wrap screen's "Share to chat"
+ * button (task W3). Posts the same farewell card `/close` sends on its way
+ * out, mirroring `useExportTrip`: no cache to invalidate, `meta: { silent:
+ * true }` since the caller shows its own toast.
+ */
+export function useShareWrap(tripId: string | undefined) {
+  return useMutation({
+    mutationFn: () => {
+      if (!tripId) return Promise.reject(new Error('No active trip'));
+      return apiClient.post<ExportTripResponse>(`/trips/${tripId}/wrap/share`);
     },
     meta: { silent: true },
   });

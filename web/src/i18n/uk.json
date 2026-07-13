@@ -191,6 +191,59 @@
   "settle.confirm": "Підтвердити розрахунок",
   "settle.errorGeneric": "Щось пішло не так",
   "settle.loadErrorHeader": "Не вдалося завантажити подорож",
+  "wrap.title": "Підсумки подорожі",
+  "wrap.noTripHeader": "Поки немає подорожі",
+  "wrap.noTripDescription": "Створіть або приєднайтеся до подорожі, щоб побачити її підсумки.",
+  "wrap.loadErrorHeader": "Не вдалося завантажити підсумки",
+  "wrap.dayCount": {
+    "one": "{count} день",
+    "few": "{count} дні",
+    "many": "{count} днів"
+  },
+  "wrap.currencyCount": {
+    "one": "{count} валюта",
+    "few": "{count} валюти",
+    "many": "{count} валют"
+  },
+  "wrap.awardsHeader": "Нагороди",
+  "wrap.awardSponsor": "Спонсор подорожі",
+  "wrap.awardBookkeeper": "Бухгалтер",
+  "wrap.awardBiggestExpense": "Найбільша витрата",
+  "wrap.awardBusiestDay": "Найактивніший день",
+  "wrap.awardPriciestDay": "Найдорожчий день",
+  "wrap.awardCurrencyCollector": "Колекціонер валют",
+  "wrap.awardCategoryChampion": "Чемпіон у категорії «{category}»",
+  "wrap.awardSettlements": "Розрахунки",
+  "wrap.expensesLogged": {
+    "one": "{count} витрата внесена",
+    "few": "{count} витрати внесено",
+    "many": "{count} витрат внесено"
+  },
+  "wrap.expensesOnDay": {
+    "one": "{count} витрата · {date}",
+    "few": "{count} витрати · {date}",
+    "many": "{count} витрат · {date}"
+  },
+  "wrap.priciestDayDetail": "{amount} · {date}",
+  "wrap.currenciesCount": {
+    "one": "оплачено в {count} валюті",
+    "few": "оплачено в {count} валютах",
+    "many": "оплачено в {count} валютах"
+  },
+  "wrap.settlementsDetail": {
+    "one": "{count} розрахунок · {amount}",
+    "few": "{count} розрахунки · {amount}",
+    "many": "{count} розрахунків · {amount}"
+  },
+  "wrap.settled": "Усі розрахувалися.",
+  "wrap.outstandingHeader": "Ще залишилося",
+  "wrap.share": "Поділитися",
+  "wrap.shareAction": "Надіслати в чат",
+  "wrap.shareFooter": "Публікує прощальну картку в прив'язаний груповий чат, або надсилає її вам сюди, якщо чат не прив'язаний.",
+  "wrap.shareSuccessGroup": "Підсумки опубліковано в груповому чаті",
+  "wrap.shareSuccessDm": "Підсумки надіслано вам у чат з ботом",
+  "wrap.shareError": "Не вдалося надіслати підсумки — перевірте, чи доступний бот",
+  "wrap.previewNotice": "Попередній перегляд — подорож ще не завершена, цифри можуть змінитися.",
   "currency.searchPlaceholder": "Пошук за всіма валютами (наприклад, JPY)",
   "currency.noMatch": "Валюту не знайдено",
   "toast.offline": "Немає з'єднання — перевірте інтернет",
