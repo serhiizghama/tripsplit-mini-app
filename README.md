@@ -34,6 +34,11 @@ README covers the repo itself; that file covers the product.
 > Balance screen posts the same summary to the linked chat, or DMs it to you
 > if no chat is linked). Design record:
 > [docs/EXPORT_NUDGES_PLAN.md](./docs/EXPORT_NUDGES_PLAN.md).
+> Also implemented: **Trip Wrap** — "Finish trip" in Settings archives the
+> trip (read-only afterwards, reopenable) and opens a celebratory wrap page
+> (confetti, headline totals, member awards like Sponsor / Bookkeeper /
+> category champions), with a farewell card posted to the linked group chat.
+> Design record: [docs/TRIP_WRAP_PLAN.md](./docs/TRIP_WRAP_PLAN.md).
 
 ## Monorepo layout
 

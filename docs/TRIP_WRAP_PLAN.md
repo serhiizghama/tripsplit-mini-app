@@ -1,5 +1,8 @@
 # Trip Wrap — finish a trip with a celebratory stats page
 
+> **Status: implemented.** All five tasks below landed (git history from
+> `feat(wrap): trip wrap metrics engine…` onward). Kept as the design record.
+
 Close ("finish") a trip and get a **Trip Wrapped** page — a celebratory,
 Spotify-Wrapped-style final report: headline numbers, fun member awards,
 category champions, plus a farewell card posted to the linked group chat.
