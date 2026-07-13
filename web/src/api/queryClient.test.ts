@@ -38,7 +38,9 @@ describe('handleQueryError', () => {
     const toastMessages: string[] = [];
     const unsubscribe = subscribeToast((message) => toastMessages.push(message));
 
-    handleQueryError(new ApiError(500, { code: 'internal_error', message: 'Something broke' }));
+    handleQueryError(
+      new ApiError(500, { code: 'internal_error', message: 'Something broke' }),
+    );
 
     expect(isAuthExpired()).toBe(false);
     expect(toastMessages).toEqual(['Something broke']);
@@ -73,9 +75,12 @@ describe('handleMutationError', () => {
     const toastMessages: string[] = [];
     const unsubscribe = subscribeToast((message) => toastMessages.push(message));
 
-    handleMutationError(new ApiError(502, { code: 'export_failed', message: 'Could not deliver' }), {
-      silent: true,
-    });
+    handleMutationError(
+      new ApiError(502, { code: 'export_failed', message: 'Could not deliver' }),
+      {
+        silent: true,
+      },
+    );
 
     expect(toastMessages).toEqual([]);
     unsubscribe();
@@ -85,7 +90,10 @@ describe('handleMutationError', () => {
     const toastMessages: string[] = [];
     const unsubscribe = subscribeToast((message) => toastMessages.push(message));
 
-    handleMutationError(new ApiError(500, { code: 'internal_error', message: 'Broke' }), undefined);
+    handleMutationError(
+      new ApiError(500, { code: 'internal_error', message: 'Broke' }),
+      undefined,
+    );
 
     expect(toastMessages).toEqual(['Broke']);
     unsubscribe();

@@ -77,7 +77,11 @@ export function unlinkChat(chatId: number): { tripTitles: string[] } {
 
 /** All chat bindings for a trip — used by T4's nudges / T5's export to find where to post. */
 export function getLinkedChats(tripId: string): TripChatRow[] {
-  return db.select().from(schema.tripChats).where(eq(schema.tripChats.tripId, tripId)).all();
+  return db
+    .select()
+    .from(schema.tripChats)
+    .where(eq(schema.tripChats.tripId, tripId))
+    .all();
 }
 
 /** Removes a single `(tripId, chatId)` binding — used for auto-unlink from `botSend.ts`. */

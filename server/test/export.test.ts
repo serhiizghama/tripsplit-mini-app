@@ -10,7 +10,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { bootTestApp, TEST_BOT_TOKEN, type TestApp } from './helpers.js';
 
-function authHeaderFor(userId: number, firstName = 'Test', languageCode?: string): string {
+function authHeaderFor(
+  userId: number,
+  firstName = 'Test',
+  languageCode?: string,
+): string {
   const initDataRaw = sign(
     {
       user: {
@@ -40,7 +44,10 @@ async function createTrip(
 ): Promise<CreatedTrip> {
   const res = await app.request('/api/trips', {
     method: 'POST',
-    headers: { Authorization: authHeaderFor(ownerId), 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: authHeaderFor(ownerId),
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ title, baseCurrency }),
   });
   expect(res.status).toBe(201);
@@ -88,7 +95,9 @@ function stubFailingTelegramFetch(): SentCall[] {
     vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body ?? '{}'));
       calls.push({ chatId: body.chat_id, text: body.text });
-      return new Response(JSON.stringify({ ok: false, error_code: 500 }), { status: 500 });
+      return new Response(JSON.stringify({ ok: false, error_code: 500 }), {
+        status: 500,
+      });
     }),
   );
   return calls;
@@ -103,7 +112,9 @@ function stubPartialTelegramFetch(failChatIds: Set<number>): SentCall[] {
       const body = JSON.parse(String(init?.body ?? '{}'));
       calls.push({ chatId: body.chat_id, text: body.text });
       if (failChatIds.has(body.chat_id)) {
-        return new Response(JSON.stringify({ ok: false, error_code: 500 }), { status: 500 });
+        return new Response(JSON.stringify({ ok: false, error_code: 500 }), {
+          status: 500,
+        });
       }
       return new Response(JSON.stringify({ ok: true, result: {} }), { status: 200 });
     }),
@@ -275,6 +286,8 @@ describe('GET /api/trips/:id linkedChats', () => {
     const res = await app.request(`/api/trips/${trip.id}`, {
       headers: { Authorization: authHeaderFor(1) },
     });
-    expect((await res.json()).linkedChats).toEqual([{ chatId: -100, title: 'Bali crew' }]);
+    expect((await res.json()).linkedChats).toEqual([
+      { chatId: -100, title: 'Bali crew' },
+    ]);
   });
 });

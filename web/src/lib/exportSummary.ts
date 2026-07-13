@@ -8,6 +8,11 @@ import type { ExportTripResponse } from '@tripsplit/shared';
 
 import type { Translator } from '../i18n';
 
-export function exportSuccessMessage(t: Translator, response: ExportTripResponse): string {
-  return response.delivered === 'group' ? t('balance.exportSuccessGroup') : t('balance.exportSuccessDm');
+export function exportSuccessMessage(
+  t: Translator,
+  response: ExportTripResponse,
+): string {
+  return response.delivered === 'group'
+    ? t('balance.exportSuccessGroup')
+    : t('balance.exportSuccessDm');
 }

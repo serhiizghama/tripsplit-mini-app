@@ -12,6 +12,8 @@ describe('linkedChatLabel', () => {
   });
 
   it('falls back to the generic label when the title is null', () => {
-    expect(linkedChatLabel({ chatId: -100123, title: null }, t)).toBe(en['settings.groupNudgesChatFallback']);
+    expect(linkedChatLabel({ chatId: -100123, title: null }, t)).toBe(
+      en['settings.groupNudgesChatFallback'],
+    );
   });
 });

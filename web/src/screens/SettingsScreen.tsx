@@ -20,7 +20,13 @@ import { useUpdateLang } from '../api/mutations';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { MemberAvatar } from '../components/MemberAvatar';
 import { EmptyState, ErrorState, SectionTitle } from '../components/ui';
-import { LOCALE_NATIVE_NAMES, SUPPORTED_LOCALES, useFormatters, useLocale, useT } from '../i18n';
+import {
+  LOCALE_NATIVE_NAMES,
+  SUPPORTED_LOCALES,
+  useFormatters,
+  useLocale,
+  useT,
+} from '../i18n';
 import type { Locale } from '../i18n';
 import { linkedChatLabel } from '../lib/linkedChats';
 import { copyToClipboard, shareInviteLink } from '../telegram/share';
@@ -54,14 +60,18 @@ function InviteSection({
 
   async function handleShare() {
     const result = await shareInviteLink(inviteLink, tripTitle);
-    if (result === 'copied') Toast.show({ content: t('settings.inviteCopied'), position: 'bottom' });
-    else if (result === 'failed') Toast.show({ content: t('settings.shareFailed'), position: 'bottom' });
+    if (result === 'copied')
+      Toast.show({ content: t('settings.inviteCopied'), position: 'bottom' });
+    else if (result === 'failed')
+      Toast.show({ content: t('settings.shareFailed'), position: 'bottom' });
     // 'opened-share-sheet' hands off to Telegram's own UI — no toast needed.
   }
 
   async function handleCopy() {
     Toast.show({
-      content: (await copyToClipboard(inviteLink)) ? t('settings.inviteCopied') : t('settings.copyFailed'),
+      content: (await copyToClipboard(inviteLink))
+        ? t('settings.inviteCopied')
+        : t('settings.copyFailed'),
       position: 'bottom',
     });
   }
@@ -103,7 +113,9 @@ function GroupNudgesSection({
 
   async function handleCopy() {
     Toast.show({
-      content: (await copyToClipboard(linkCommand)) ? t('settings.groupNudgesCommandCopied') : t('settings.copyFailed'),
+      content: (await copyToClipboard(linkCommand))
+        ? t('settings.groupNudgesCommandCopied')
+        : t('settings.copyFailed'),
       position: 'bottom',
     });
   }
@@ -127,7 +139,9 @@ function GroupNudgesSection({
       </div>
 
       <List mode="card">
-        <List.Item description={linkCommand}>{t('settings.groupNudgesLinkCommand')}</List.Item>
+        <List.Item description={linkCommand}>
+          {t('settings.groupNudgesLinkCommand')}
+        </List.Item>
       </List>
       <div className="ts-inline-actions" style={{ paddingLeft: 16, paddingRight: 16 }}>
         <Button fill="outline" size="small" onClick={() => void handleCopy()}>
@@ -175,7 +189,9 @@ function TripSection() {
   }
 
   const memberCountLabel = t('settings.memberCount', { count: trip.data.members.length });
-  const baseCurrencyLabel = t('settings.baseCurrency', { currency: trip.data.baseCurrency });
+  const baseCurrencyLabel = t('settings.baseCurrency', {
+    currency: trip.data.baseCurrency,
+  });
 
   return (
     <>
@@ -193,7 +209,10 @@ function TripSection() {
 
       <InviteSection inviteLink={trip.data.inviteLink} tripTitle={trip.data.title} />
 
-      <GroupNudgesSection linkedChats={trip.data.linkedChats} inviteCode={trip.data.inviteCode} />
+      <GroupNudgesSection
+        linkedChats={trip.data.linkedChats}
+        inviteCode={trip.data.inviteCode}
+      />
     </>
   );
 }

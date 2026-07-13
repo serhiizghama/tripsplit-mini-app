@@ -12,7 +12,11 @@
  * math, routing, and i18n are unchanged.
  */
 import { Button, List, Toast } from 'antd-mobile';
-import type { MemberBalance, TransferSuggestion, TripMemberView } from '@tripsplit/shared';
+import type {
+  MemberBalance,
+  TransferSuggestion,
+  TripMemberView,
+} from '@tripsplit/shared';
 import { useNavigate } from 'react-router';
 
 import { useExportTrip } from '../api/mutations';
@@ -26,7 +30,11 @@ import type { Translator } from '../i18n';
 import { exportSuccessMessage } from '../lib/exportSummary';
 import './screens.css';
 
-function memberFirstName(t: Translator, member: TripMemberView | undefined, userId: number): string {
+function memberFirstName(
+  t: Translator,
+  member: TripMemberView | undefined,
+  userId: number,
+): string {
   return member?.firstName ?? t('common.userFallback', { id: userId });
 }
 
@@ -68,9 +76,13 @@ function Hero({
   let leadText: string;
   if (myTransfers.length === 1) {
     const transfer = myTransfers[0]!;
-    const otherId = transfer.fromUserId === myUserId ? transfer.toUserId : transfer.fromUserId;
+    const otherId =
+      transfer.fromUserId === myUserId ? transfer.toUserId : transfer.fromUserId;
     const otherName = memberFirstName(t, membersById.get(otherId), otherId);
-    leadText = net > 0 ? t('balance.owesYou', { name: otherName }) : t('balance.youOwe', { name: otherName });
+    leadText =
+      net > 0
+        ? t('balance.owesYou', { name: otherName })
+        : t('balance.youOwe', { name: otherName });
   } else {
     leadText = net > 0 ? t('balance.youAreOwedTotal') : t('balance.youOweTotal');
   }
@@ -121,7 +133,13 @@ function TransferRow({
  * owing, no fill when settled. Purely decorative (the amount is already
  * announced via `extra`), so it's hidden from assistive tech.
  */
-function NetBar({ netBaseMinor, maxAbsNet }: { netBaseMinor: number; maxAbsNet: number }) {
+function NetBar({
+  netBaseMinor,
+  maxAbsNet,
+}: {
+  netBaseMinor: number;
+  maxAbsNet: number;
+}) {
   if (netBaseMinor === 0) {
     return (
       <div className="ts-net-bar" aria-hidden="true">
@@ -137,7 +155,11 @@ function NetBar({ netBaseMinor, maxAbsNet }: { netBaseMinor: number; maxAbsNet: 
     <div className="ts-net-bar" aria-hidden="true">
       <span
         className={`ts-net-bar-fill ${isPositive ? 'ts-net-bar-fill--pos' : 'ts-net-bar-fill--neg'}`}
-        style={isPositive ? { left: '50%', width: `${halfPct}%` } : { right: '50%', width: `${halfPct}%` }}
+        style={
+          isPositive
+            ? { left: '50%', width: `${halfPct}%` }
+            : { right: '50%', width: `${halfPct}%` }
+        }
       />
     </div>
   );
@@ -157,7 +179,11 @@ function PersonTotalRow({
   const t = useT();
   const { money } = useFormatters();
   const netClass =
-    balance.netBaseMinor > 0 ? 'ts-amount-pos' : balance.netBaseMinor < 0 ? 'ts-amount-neg' : '';
+    balance.netBaseMinor > 0
+      ? 'ts-amount-pos'
+      : balance.netBaseMinor < 0
+        ? 'ts-amount-neg'
+        : '';
 
   return (
     <List.Item
@@ -173,7 +199,9 @@ function PersonTotalRow({
       }
       extra={
         <span className={`ts-nums ${netClass}`} style={{ fontWeight: 600 }}>
-          {balance.netBaseMinor === 0 ? '—' : money(Math.abs(balance.netBaseMinor), baseCurrency)}
+          {balance.netBaseMinor === 0
+            ? '—'
+            : money(Math.abs(balance.netBaseMinor), baseCurrency)}
         </span>
       }
     >
@@ -334,14 +362,19 @@ export function BalanceScreen() {
           />
         ))}
       </List>
-      <div className="ts-section-hint">{t('balance.perPersonFooter', { currency: baseCurrency })}</div>
+      <div className="ts-section-hint">
+        {t('balance.perPersonFooter', { currency: baseCurrency })}
+      </div>
 
       {perCurrency.length > 0 && (
         <>
           <SectionTitle>{t('balance.spendByCurrency')}</SectionTitle>
           <List mode="card">
             {perCurrency.map((c) => (
-              <List.Item key={c.currency} extra={<span className="ts-nums">{money(c.totalMinor, c.currency)}</span>}>
+              <List.Item
+                key={c.currency}
+                extra={<span className="ts-nums">{money(c.totalMinor, c.currency)}</span>}
+              >
                 {c.currency}
               </List.Item>
             ))}

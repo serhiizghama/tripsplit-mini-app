@@ -299,7 +299,11 @@ tripsRouter.post('/:id/export', async (c) => {
 
   const botToken = process.env.BOT_TOKEN;
   if (!botToken) {
-    throw new AppError(502, 'export_failed', 'Bot is not configured — export cannot be delivered');
+    throw new AppError(
+      502,
+      'export_failed',
+      'Bot is not configured — export cannot be delivered',
+    );
   }
 
   const locale = resolveBotLocale(user.lang);

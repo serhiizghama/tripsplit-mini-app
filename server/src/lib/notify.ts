@@ -44,7 +44,10 @@ export interface NudgeActor {
  * rest (locale/balance formatting) too, so a bad actor/expense shape can't
  * turn a nudge bug into a 500 on the mutation that triggered it.
  */
-async function sendNudgeToLinkedChats(trip: TripRow, buildHtml: () => string): Promise<void> {
+async function sendNudgeToLinkedChats(
+  trip: TripRow,
+  buildHtml: () => string,
+): Promise<void> {
   try {
     const chats = getLinkedChats(trip.id);
     if (chats.length === 0) return;
@@ -110,7 +113,9 @@ export function notifyExpenseCreated(
 ): Promise<void> {
   return sendNudgeToLinkedChats(trip, () => {
     const locale = resolveBotLocale(actor.lang);
-    return botMessages[locale].expenseAdded(expenseNudgeParams(actor, trip, expense, locale));
+    return botMessages[locale].expenseAdded(
+      expenseNudgeParams(actor, trip, expense, locale),
+    );
   });
 }
 
@@ -121,7 +126,9 @@ export function notifyExpenseUpdated(
 ): Promise<void> {
   return sendNudgeToLinkedChats(trip, () => {
     const locale = resolveBotLocale(actor.lang);
-    return botMessages[locale].expenseUpdated(expenseNudgeParams(actor, trip, expense, locale));
+    return botMessages[locale].expenseUpdated(
+      expenseNudgeParams(actor, trip, expense, locale),
+    );
   });
 }
 
@@ -133,7 +140,9 @@ export function notifyExpenseDeleted(
 ): Promise<void> {
   return sendNudgeToLinkedChats(trip, () => {
     const locale = resolveBotLocale(actor.lang);
-    return botMessages[locale].expenseDeleted(expenseNudgeParams(actor, trip, expense, locale));
+    return botMessages[locale].expenseDeleted(
+      expenseNudgeParams(actor, trip, expense, locale),
+    );
   });
 }
 

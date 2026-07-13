@@ -10,7 +10,14 @@
  * `CURRENT_TIMESTAMP`, so behavior is identical in tests and prod).
  */
 import { sql } from 'drizzle-orm';
-import { check, integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+  check,
+  integer,
+  primaryKey,
+  real,
+  sqliteTable,
+  text,
+} from 'drizzle-orm/sqlite-core';
 
 /** users: Telegram identity, cached profile. */
 export const users = sqliteTable('users', {
@@ -82,7 +89,10 @@ export const expenses = sqliteTable(
   },
   (table) => [
     check('expenses_type_check', sql`${table.type} IN ('expense','settlement')`),
-    check('expenses_split_mode_check', sql`${table.splitMode} IN ('equal','custom','solo')`),
+    check(
+      'expenses_split_mode_check',
+      sql`${table.splitMode} IN ('equal','custom','solo')`,
+    ),
     check('expenses_status_check', sql`${table.status} IN ('planned','paid')`),
     // A 'paid' row must have a payer; a 'planned' row must not — keeps the
     // two-state lifecycle self-consistent at the DB level.

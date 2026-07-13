@@ -48,7 +48,10 @@ export function handleQueryError(err: unknown): void {
  * English one would just be noise. Exported for the same reason as
  * `handleQueryError` — unit-testable without rendering anything.
  */
-export function handleMutationError(err: unknown, meta: { silent?: boolean } | undefined): void {
+export function handleMutationError(
+  err: unknown,
+  meta: { silent?: boolean } | undefined,
+): void {
   if (meta?.silent) return;
   handleQueryError(err);
 }
@@ -82,6 +85,7 @@ export const queryClient = new QueryClient({
   },
   queryCache: new QueryCache({ onError: handleQueryError }),
   mutationCache: new MutationCache({
-    onError: (err, _variables, _context, mutation) => handleMutationError(err, mutation.meta),
+    onError: (err, _variables, _context, mutation) =>
+      handleMutationError(err, mutation.meta),
   }),
 });

@@ -60,7 +60,11 @@ const COMMAND_PATTERN = /^\/(\w+)(?:@\w+)?(?:\s+([\s\S]*))?$/;
 /** The sender's stored UI language (`users.lang`), or `'en'` for an unknown/anonymous sender. */
 function localeForSender(userId: number | undefined): BotLocale {
   if (userId === undefined) return 'en';
-  const row = db.select({ lang: schema.users.lang }).from(schema.users).where(eq(schema.users.id, userId)).get();
+  const row = db
+    .select({ lang: schema.users.lang })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .get();
   return resolveBotLocale(row?.lang);
 }
 
@@ -145,7 +149,10 @@ async function handleStart(
       inline_keyboard: [[{ text: buttonText, web_app: { url } }]],
     },
   });
-  logger.info({ chatId, hasInvite: Boolean(inviteCode) }, 'bot: sent /start Web App button');
+  logger.info(
+    { chatId, hasInvite: Boolean(inviteCode) },
+    'bot: sent /start Web App button',
+  );
 }
 
 /**
@@ -222,7 +229,10 @@ async function handleSummary(botToken: string, message: IncomingMessage): Promis
  * `@BotName` suffix Telegram appends in groups. Never throws — each handler
  * call is caught and logged so one bad update can't stall the polling loop.
  */
-export async function handleUpdate(botToken: string, update: TelegramUpdate): Promise<void> {
+export async function handleUpdate(
+  botToken: string,
+  update: TelegramUpdate,
+): Promise<void> {
   const message = update.message;
   const chatId = message?.chat.id;
   const text = message?.text?.trim();
@@ -265,7 +275,9 @@ export async function handleUpdate(botToken: string, update: TelegramUpdate): Pr
 export function startBot(botToken: string): void {
   void (async () => {
     // Drop any leftover webhook so getUpdates isn't rejected with 409.
-    await callTelegram(botToken, 'deleteWebhook', { drop_pending_updates: false }).catch(() => {});
+    await callTelegram(botToken, 'deleteWebhook', { drop_pending_updates: false }).catch(
+      () => {},
+    );
     logger.info('bot: /start listener started (long polling)');
 
     let offset = 0;

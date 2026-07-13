@@ -12,7 +12,11 @@ import { unlinkChat } from './tripChats.js';
 
 const TELEGRAM_API = 'https://api.telegram.org';
 
-export async function callTelegram(botToken: string, method: string, body: unknown): Promise<unknown> {
+export async function callTelegram(
+  botToken: string,
+  method: string,
+  body: unknown,
+): Promise<unknown> {
   const res = await fetch(`${TELEGRAM_API}/bot${botToken}/${method}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

@@ -45,8 +45,14 @@ async function createTrip(
 }
 
 /** Registers a `users` row for `userId` without joining any trip (linkedBy only needs the FK to exist). */
-async function ensureUser(app: TestApp['app'], userId: number, firstName = 'User'): Promise<void> {
-  const res = await app.request('/api/me', { headers: { Authorization: authHeaderFor(userId, firstName) } });
+async function ensureUser(
+  app: TestApp['app'],
+  userId: number,
+  firstName = 'User',
+): Promise<void> {
+  const res = await app.request('/api/me', {
+    headers: { Authorization: authHeaderFor(userId, firstName) },
+  });
   expect(res.status).toBe(200);
 }
 
@@ -63,7 +69,8 @@ describe('tripChats service', () => {
     const { app } = current;
     const trip = await createTrip(app, 1, 'Bali');
 
-    const { linkTripChat, getLinkedChats, getTripsForChat } = await import('../src/lib/tripChats.js');
+    const { linkTripChat, getLinkedChats, getTripsForChat } =
+      await import('../src/lib/tripChats.js');
 
     const result = linkTripChat({
       inviteCode: trip.inviteCode,
@@ -90,7 +97,9 @@ describe('tripChats service', () => {
     await createTrip(app, 1, 'Bali');
 
     const { linkTripChat, getTripsForChat } = await import('../src/lib/tripChats.js');
-    expect(linkTripChat({ inviteCode: 'does-not-exist', chatId: -1, linkedBy: 1 })).toBeUndefined();
+    expect(
+      linkTripChat({ inviteCode: 'does-not-exist', chatId: -1, linkedBy: 1 }),
+    ).toBeUndefined();
     expect(getTripsForChat(-1)).toHaveLength(0);
   });
 
@@ -102,8 +111,18 @@ describe('tripChats service', () => {
 
     const { linkTripChat, getLinkedChats } = await import('../src/lib/tripChats.js');
 
-    linkTripChat({ inviteCode: trip.inviteCode, chatId: -100, chatTitle: 'Old Title', linkedBy: 1 });
-    linkTripChat({ inviteCode: trip.inviteCode, chatId: -100, chatTitle: 'New Title', linkedBy: 2 });
+    linkTripChat({
+      inviteCode: trip.inviteCode,
+      chatId: -100,
+      chatTitle: 'Old Title',
+      linkedBy: 1,
+    });
+    linkTripChat({
+      inviteCode: trip.inviteCode,
+      chatId: -100,
+      chatTitle: 'New Title',
+      linkedBy: 2,
+    });
 
     const linked = getLinkedChats(trip.id);
     expect(linked).toHaveLength(1); // upsert, not a second row
@@ -117,7 +136,8 @@ describe('tripChats service', () => {
     const tripA = await createTrip(app, 1, 'Trip A');
     const tripB = await createTrip(app, 1, 'Trip B');
 
-    const { linkTripChat, unlinkChat, getTripsForChat } = await import('../src/lib/tripChats.js');
+    const { linkTripChat, unlinkChat, getTripsForChat } =
+      await import('../src/lib/tripChats.js');
     linkTripChat({ inviteCode: tripA.inviteCode, chatId: -100, linkedBy: 1 });
     linkTripChat({ inviteCode: tripB.inviteCode, chatId: -100, linkedBy: 1 });
     expect(getTripsForChat(-100)).toHaveLength(2);
@@ -139,7 +159,8 @@ describe('tripChats service', () => {
     const tripA = await createTrip(app, 1, 'Trip A');
     const tripB = await createTrip(app, 1, 'Trip B');
 
-    const { linkTripChat, removeChatBinding, getTripsForChat } = await import('../src/lib/tripChats.js');
+    const { linkTripChat, removeChatBinding, getTripsForChat } =
+      await import('../src/lib/tripChats.js');
     linkTripChat({ inviteCode: tripA.inviteCode, chatId: -100, linkedBy: 1 });
     linkTripChat({ inviteCode: tripB.inviteCode, chatId: -100, linkedBy: 1 });
 

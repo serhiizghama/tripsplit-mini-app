@@ -19,7 +19,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { TripRow } from '../src/lib/summary.js';
 import { bootTestApp, TEST_BOT_TOKEN, type TestApp } from './helpers.js';
 
-function authHeaderFor(userId: number, firstName = 'Test', languageCode?: string): string {
+function authHeaderFor(
+  userId: number,
+  firstName = 'Test',
+  languageCode?: string,
+): string {
   const initDataRaw = sign(
     {
       user: {
@@ -48,7 +52,10 @@ async function createTrip(
 ): Promise<CreatedTrip> {
   const res = await app.request('/api/trips', {
     method: 'POST',
-    headers: { Authorization: authHeaderFor(ownerId), 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: authHeaderFor(ownerId),
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ title, baseCurrency }),
   });
   expect(res.status).toBe(201);
@@ -64,7 +71,10 @@ async function joinTrip(
 ): Promise<void> {
   const res = await app.request('/api/trips/join', {
     method: 'POST',
-    headers: { Authorization: authHeaderFor(userId, firstName), 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: authHeaderFor(userId, firstName),
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ inviteCode }),
   });
   expect(res.status).toBe(200);
@@ -99,7 +109,10 @@ async function postSettlement(
 ) {
   const res = await app.request(`/api/trips/${tripId}/settlements`, {
     method: 'POST',
-    headers: { Authorization: authHeaderFor(userId, firstName), 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: authHeaderFor(userId, firstName),
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(body),
   });
   expect(res.status).toBe(201);
@@ -139,7 +152,10 @@ function stubTelegramFetch(): SentCall[] {
 function stubFailingTelegramFetch(): void {
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () => new Response(JSON.stringify({ ok: false, error_code: 500 }), { status: 500 })),
+    vi.fn(
+      async () =>
+        new Response(JSON.stringify({ ok: false, error_code: 500 }), { status: 500 }),
+    ),
   );
 }
 
@@ -163,7 +179,13 @@ describe('notify (direct fn calls)', () => {
     await notifyExpenseCreated(
       tripRow,
       { firstName: 'Test', lang: 'en' },
-      { amountMinor: 1000, currency: 'USD', description: 'Dinner', category: '🍜', status: 'paid' },
+      {
+        amountMinor: 1000,
+        currency: 'USD',
+        description: 'Dinner',
+        category: '🍜',
+        status: 'paid',
+      },
     );
 
     expect(calls).toHaveLength(0);
@@ -199,7 +221,13 @@ describe('notify (direct fn calls)', () => {
     await notifyExpenseCreated(
       tripRow,
       { firstName: 'Test', lang: 'en' },
-      { amountMinor: 10000, currency: 'USD', description: 'Dinner', category: '🍜', status: 'paid' },
+      {
+        amountMinor: 10000,
+        currency: 'USD',
+        description: 'Dinner',
+        category: '🍜',
+        status: 'paid',
+      },
     );
 
     expect(calls).toHaveLength(2);
@@ -227,7 +255,13 @@ describe('notify (direct fn calls)', () => {
     await notifyExpenseCreated(
       tripRow,
       { firstName: 'Тест', lang: 'ru' },
-      { amountMinor: 1000, currency: 'USD', description: null, category: null, status: 'paid' },
+      {
+        amountMinor: 1000,
+        currency: 'USD',
+        description: null,
+        category: null,
+        status: 'paid',
+      },
     );
 
     expect(calls).toHaveLength(1);
@@ -248,7 +282,13 @@ describe('notify (direct fn calls)', () => {
     await notifyExpenseDeleted(
       tripRow,
       { firstName: 'Test', lang: 'en' },
-      { amountMinor: 2500, currency: 'EUR', description: 'Taxi', category: '🚕', status: 'paid' },
+      {
+        amountMinor: 2500,
+        currency: 'EUR',
+        description: 'Taxi',
+        category: '🚕',
+        status: 'paid',
+      },
     );
 
     expect(calls).toHaveLength(1);
@@ -303,7 +343,13 @@ describe('notify (direct fn calls)', () => {
       notifyExpenseCreated(
         tripRow,
         { firstName: 'Test', lang: 'en' },
-        { amountMinor: 1000, currency: 'USD', description: null, category: null, status: 'paid' },
+        {
+          amountMinor: 1000,
+          currency: 'USD',
+          description: null,
+          category: null,
+          status: 'paid',
+        },
       ),
     ).resolves.toBeUndefined();
   });

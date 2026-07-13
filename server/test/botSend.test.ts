@@ -18,10 +18,17 @@ function authHeaderFor(userId: number, firstName = 'Test'): string {
   return `tma ${initDataRaw}`;
 }
 
-async function createTrip(app: TestApp['app'], ownerId: number, title: string): Promise<{ inviteCode: string }> {
+async function createTrip(
+  app: TestApp['app'],
+  ownerId: number,
+  title: string,
+): Promise<{ inviteCode: string }> {
   const res = await app.request('/api/trips', {
     method: 'POST',
-    headers: { Authorization: authHeaderFor(ownerId), 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: authHeaderFor(ownerId),
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ title, baseCurrency: 'USD' }),
   });
   expect(res.status).toBe(201);
@@ -42,7 +49,9 @@ describe('sendBotMessage', () => {
     current = await bootTestApp();
 
     const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
-      expect(String(input)).toBe(`https://api.telegram.org/bot${TEST_BOT_TOKEN}/sendMessage`);
+      expect(String(input)).toBe(
+        `https://api.telegram.org/bot${TEST_BOT_TOKEN}/sendMessage`,
+      );
       const body = JSON.parse(String(init?.body));
       expect(body).toMatchObject({
         chat_id: -100,
@@ -99,7 +108,11 @@ describe('sendBotMessage', () => {
       vi.fn(
         async () =>
           new Response(
-            JSON.stringify({ ok: false, error_code: 400, description: 'Bad Request: chat not found' }),
+            JSON.stringify({
+              ok: false,
+              error_code: 400,
+              description: 'Bad Request: chat not found',
+            }),
             { status: 400 },
           ),
       ),
@@ -122,7 +135,11 @@ describe('sendBotMessage', () => {
       vi.fn(
         async () =>
           new Response(
-            JSON.stringify({ ok: false, error_code: 500, description: 'Internal Server Error' }),
+            JSON.stringify({
+              ok: false,
+              error_code: 500,
+              description: 'Internal Server Error',
+            }),
             { status: 500 },
           ),
       ),
