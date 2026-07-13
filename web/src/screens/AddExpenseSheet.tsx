@@ -333,6 +333,10 @@ export function AddExpenseSheet() {
   }
 
   function handleSubmit() {
+    // Belt-and-suspenders: the submit buttons are already disabled/hidden for
+    // an archived trip, but a stale MainButton tap could still land here.
+    if (archived) return;
+
     const body = buildRequestBody();
     if (!body) {
       hapticFeedback.notificationOccurred.ifAvailable('error');
@@ -359,7 +363,7 @@ export function AddExpenseSheet() {
   }
 
   function handleDelete() {
-    if (!expenseId) return;
+    if (!expenseId || archived) return;
     if (!confirmingDelete) {
       setConfirmingDelete(true);
       setTimeout(() => setConfirmingDelete(false), 3000);
@@ -399,11 +403,18 @@ export function AddExpenseSheet() {
     return t('rate.enterManually', { currency: baseCurrency ?? '' });
   }
 
+  // A finished trip blocks expense mutations server-side (409 `trip_archived`)
+  // — Trip Wrap plan task W4. Rather than letting that surface as a generic
+  // error after the user fills out the whole form, the save/delete actions
+  // are disabled up front with an explanatory notice; every other field
+  // stays interactive (harmless to look at, and disabling ~15 individual
+  // inputs would be a lot of surface for no real benefit).
+  const archived = trip.data?.archivedAt != null;
   const isPending = createExpense.isPending || updateExpense.isPending;
   const mainButtonAvailable = useMainButtonAvailable();
   useMainButtonSubmit({
     text: isEditing ? t('expense.save') : t('expense.addTitle'),
-    enabled: !isPending,
+    enabled: !isPending && !archived,
     onClick: handleSubmit,
   });
   useClosingConfirmation(formTouched);
@@ -650,6 +661,10 @@ export function AddExpenseSheet() {
             </>
           )}
 
+          {archived && (
+            <div className="ts-readonly-notice">🏁 {t('expense.readOnlyNotice')}</div>
+          )}
+
           {errorMessage && (
             <div className="ts-form-error" role="alert">
               ⚠️ {errorMessage}
@@ -662,7 +677,7 @@ export function AddExpenseSheet() {
                 color="primary"
                 size="large"
                 block
-                disabled={isPending}
+                disabled={isPending || archived}
                 loading={isPending}
                 onClick={handleSubmit}
               >
@@ -679,6 +694,7 @@ export function AddExpenseSheet() {
                   fill={confirmingDelete ? 'solid' : 'outline'}
                   size="large"
                   block
+                  disabled={archived}
                   onClick={handleDelete}
                   loading={deleteExpense.isPending}
                 >

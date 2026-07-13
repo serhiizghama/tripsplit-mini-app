@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router';
 
 import { useDeleteExpense } from '../api/mutations';
 import { useCurrentTrip } from '../api/queries';
+import { ArchivedTripBanner } from '../components/ArchivedTripBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { MemberAvatar } from '../components/MemberAvatar';
 import { TripSwitcherBar } from '../components/TripSwitcherBar';
@@ -70,7 +71,9 @@ function ExpenseRow({
     : [
         expense.category,
         expense.description ||
-          (payer ? t('feed.expensePaid', { name: payer.firstName }) : t('feed.expenseFallback')),
+          (payer
+            ? t('feed.expensePaid', { name: payer.firstName })
+            : t('feed.expenseFallback')),
       ]
         .filter(Boolean)
         .join(' ');
@@ -111,7 +114,9 @@ function ExpenseRow({
         onClick={isSettlement ? undefined : onOpen}
         extra={
           <div className="ts-amount ts-nums">
-            <div className="ts-amount-main">{money(expense.amountMinor, expense.currency)}</div>
+            <div className="ts-amount-main">
+              {money(expense.amountMinor, expense.currency)}
+            </div>
             {showBaseEquivalent && (
               <div className="ts-amount-sub">
                 ≈ {money(expense.amountBaseMinor, baseCurrency)}
@@ -131,6 +136,7 @@ export function FeedScreen() {
   const { tripId, trip } = useCurrentTrip();
   const t = useT();
   const { dayHeader, money } = useFormatters();
+  const archived = trip.data?.archivedAt != null;
 
   let body: JSX.Element;
 
@@ -169,16 +175,24 @@ export function FeedScreen() {
           title={t('feed.noExpensesHeader')}
           description={t('feed.noExpensesDescription')}
           action={
-            <Button color="primary" size="large" onClick={() => navigate('/add-expense')}>
-              {t('feed.addExpense')}
-            </Button>
+            archived ? undefined : (
+              <Button
+                color="primary"
+                size="large"
+                onClick={() => navigate('/add-expense')}
+              >
+                {t('feed.addExpense')}
+              </Button>
+            )
           }
         />
       );
     } else {
       body = (
         <>
-          <div className="ts-page-sub">{t('feed.expenseCount', { count: settledItems.length })}</div>
+          <div className="ts-page-sub">
+            {t('feed.expenseCount', { count: settledItems.length })}
+          </div>
 
           {plannedItems.length > 0 && (
             <List mode="card" header={t('feed.plannedHeader')}>
@@ -240,8 +254,9 @@ export function FeedScreen() {
   return (
     <>
       <TripSwitcherBar />
+      {archived && <ArchivedTripBanner onOpen={() => navigate('/wrap')} />}
       {body}
-      {tripId !== undefined && (
+      {tripId !== undefined && !archived && (
         <button
           type="button"
           className="ts-fab"

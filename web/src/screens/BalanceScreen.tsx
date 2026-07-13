@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router';
 
 import { useExportTrip } from '../api/mutations';
 import { useBalances, useCurrentTrip } from '../api/queries';
+import { ArchivedTripBanner } from '../components/ArchivedTripBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { MemberAvatar } from '../components/MemberAvatar';
 import { TripSwitcherBar } from '../components/TripSwitcherBar';
@@ -99,11 +100,13 @@ function TransferRow({
   transfer,
   membersById,
   baseCurrency,
+  archived,
   onSettle,
 }: {
   transfer: TransferSuggestion;
   membersById: Map<number, TripMemberView>;
   baseCurrency: string;
+  archived: boolean;
   onSettle: (transfer: TransferSuggestion) => void;
 }) {
   const t = useT();
@@ -116,9 +119,11 @@ function TransferRow({
       prefix={from ? <MemberAvatar person={from} size={32} /> : undefined}
       description={`${memberFirstName(t, from, transfer.fromUserId)} → ${memberFirstName(t, to, transfer.toUserId)}`}
       extra={
-        <Button color="primary" size="small" onClick={() => onSettle(transfer)}>
-          {t('balance.settle')}
-        </Button>
+        archived ? undefined : (
+          <Button color="primary" size="small" onClick={() => onSettle(transfer)}>
+            {t('balance.settle')}
+          </Button>
+        )
       }
     >
       <span className="ts-nums">{money(transfer.amountBaseMinor, baseCurrency)}</span>
@@ -307,6 +312,7 @@ export function BalanceScreen() {
   const { balances, transfers, perCurrency, baseCurrency } = balancesQuery.data;
   const membersById = new Map(trip.data.members.map((m) => [m.id, m]));
   const allSettled = transfers.length === 0;
+  const archived = trip.data.archivedAt != null;
   // Shared scale for every row's diverging net bar, so bar lengths are
   // comparable across people rather than each row maxing out on its own.
   const maxAbsNet = Math.max(...balances.map((b) => Math.abs(b.netBaseMinor)), 0);
@@ -324,6 +330,7 @@ export function BalanceScreen() {
   return (
     <>
       <TripSwitcherBar />
+      {archived && <ArchivedTripBanner onOpen={() => navigate('/wrap')} />}
       <Hero
         myUserId={me.data.user.id}
         balances={balances}
@@ -342,6 +349,7 @@ export function BalanceScreen() {
                 transfer={transfer}
                 membersById={membersById}
                 baseCurrency={baseCurrency}
+                archived={archived}
                 onSettle={handleSettle}
               />
             ))}

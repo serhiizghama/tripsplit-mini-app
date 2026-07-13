@@ -56,10 +56,15 @@ function TripRow({
   onSelect: (trip: TripSummary) => void;
 }) {
   const t = useT();
+  const archived = trip.archivedAt != null;
+  const description = `${t('settings.memberCount', { count: trip.memberCount })} · ${trip.baseCurrency}${
+    archived ? ` · ${t('trips.finishedSuffix')}` : ''
+  }`;
+
   return (
     <List.Item
       prefix={<TripTile trip={trip} />}
-      description={`${t('settings.memberCount', { count: trip.memberCount })} · ${trip.baseCurrency}`}
+      description={description}
       extra={
         isActive ? (
           <CheckOutline className="ts-trip-check" aria-label={t('trips.activeAria')} />
@@ -69,7 +74,10 @@ function TripRow({
       arrowIcon={false}
       onClick={() => onSelect(trip)}
     >
-      {trip.title}
+      <span className={archived ? 'ts-trip-title--archived' : undefined}>
+        {archived && '🏁 '}
+        {trip.title}
+      </span>
     </List.Item>
   );
 }
@@ -126,7 +134,12 @@ export function TripSwitcherSheet() {
       )}
 
       <div className="ts-sheet-actions">
-        <Button color="primary" size="large" block onClick={() => navigate('/create-trip')}>
+        <Button
+          color="primary"
+          size="large"
+          block
+          onClick={() => navigate('/create-trip')}
+        >
           {t('trips.newTrip')}
         </Button>
       </div>

@@ -10,13 +10,13 @@
  * language switcher, imperative `Toast` for share/copy feedback); all queries,
  * the `useUpdateLang` mutation, share/copy handlers, and i18n are unchanged.
  */
-import { Button, List, Segmented, Toast } from 'antd-mobile';
+import { Button, Dialog, List, Segmented, Toast } from 'antd-mobile';
 import { hapticFeedback } from '@tma.js/sdk-react';
 import type { LinkedChat, TripMemberView } from '@tripsplit/shared';
 import { useNavigate } from 'react-router';
 
-import { useCurrentTrip, useMe } from '../api/queries';
-import { useUpdateLang } from '../api/mutations';
+import { useBalances, useCurrentTrip, useMe } from '../api/queries';
+import { useCloseTrip, useReopenTrip, useUpdateLang } from '../api/mutations';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { MemberAvatar } from '../components/MemberAvatar';
 import { EmptyState, ErrorState, SectionTitle } from '../components/ui';
@@ -29,6 +29,7 @@ import {
 } from '../i18n';
 import type { Locale } from '../i18n';
 import { linkedChatLabel } from '../lib/linkedChats';
+import { finishTripConfirmMessage } from '../lib/tripLifecycle';
 import { copyToClipboard, shareInviteLink } from '../telegram/share';
 import './screens.css';
 
@@ -153,6 +154,118 @@ function GroupNudgesSection({
   );
 }
 
+/**
+ * "Trip lifecycle" — finish/reopen (Trip Wrap plan task W4). Danger-zone
+ * placement at the end of the trip-scoped sections. An active trip gets a
+ * single "Finish trip" button whose confirm dialog warns (but never blocks)
+ * when balances aren't settled yet; an archived trip shows when it finished
+ * plus "View trip wrap" / "Reopen trip".
+ */
+function TripLifecycleSection({
+  tripId,
+  archivedAt,
+}: {
+  tripId: string;
+  archivedAt: string | null;
+}) {
+  const t = useT();
+  const navigate = useNavigate();
+  const { shortDate } = useFormatters();
+  const archived = archivedAt !== null;
+  // Only the active trip needs its outstanding transfers — an archived
+  // trip's dialog is a plain reopen confirm, no debts branch to weigh.
+  const balancesQuery = useBalances(archived ? undefined : tripId);
+  const closeTrip = useCloseTrip(tripId);
+  const reopenTrip = useReopenTrip(tripId);
+
+  function handleFinish() {
+    const hasOutstanding = (balancesQuery.data?.transfers.length ?? 0) > 0;
+    void Dialog.confirm({
+      content: finishTripConfirmMessage(t, hasOutstanding),
+      confirmText: t('settings.finishTrip'),
+      onConfirm: () => {
+        closeTrip.mutate(undefined, {
+          onSuccess: () => navigate('/wrap'),
+          onError: () => {
+            Toast.show({ content: t('settings.finishTripError'), position: 'bottom' });
+          },
+        });
+      },
+    });
+  }
+
+  function handleReopen() {
+    void Dialog.confirm({
+      content: t('settings.reopenTripConfirm'),
+      confirmText: t('settings.reopenTrip'),
+      onConfirm: () => {
+        reopenTrip.mutate(undefined, {
+          onSuccess: () => {
+            Toast.show({ content: t('settings.reopenTripSuccess'), position: 'bottom' });
+          },
+          onError: () => {
+            Toast.show({ content: t('settings.reopenTripError'), position: 'bottom' });
+          },
+        });
+      },
+    });
+  }
+
+  return (
+    <>
+      <SectionTitle>{t('settings.lifecycleHeader')}</SectionTitle>
+      {archived ? (
+        <>
+          <div className="ts-section-hint">
+            {t('settings.finishedOn', { date: shortDate(archivedAt) })}
+          </div>
+          <div
+            className="ts-inline-actions"
+            style={{ paddingLeft: 16, paddingRight: 16 }}
+          >
+            <Button
+              color="primary"
+              fill="outline"
+              size="small"
+              onClick={() => navigate('/wrap')}
+            >
+              {t('settings.viewWrap')}
+            </Button>
+            <Button
+              fill="outline"
+              size="small"
+              loading={reopenTrip.isPending}
+              disabled={reopenTrip.isPending}
+              onClick={handleReopen}
+            >
+              {t('settings.reopenTrip')}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div
+            className="ts-inline-actions"
+            style={{ paddingLeft: 16, paddingRight: 16 }}
+          >
+            <Button
+              color="danger"
+              fill="outline"
+              size="small"
+              loading={closeTrip.isPending}
+              disabled={closeTrip.isPending || balancesQuery.isPending}
+              onClick={handleFinish}
+            >
+              {t('settings.finishTrip')}
+            </Button>
+          </div>
+          <div className="ts-section-hint">{t('settings.finishTripFooter')}</div>
+        </>
+      )}
+    </>
+  );
+}
+
 function TripSection() {
   const { tripId, trip } = useCurrentTrip();
   const navigate = useNavigate();
@@ -213,6 +326,8 @@ function TripSection() {
         linkedChats={trip.data.linkedChats}
         inviteCode={trip.data.inviteCode}
       />
+
+      <TripLifecycleSection tripId={tripId} archivedAt={trip.data.archivedAt ?? null} />
     </>
   );
 }

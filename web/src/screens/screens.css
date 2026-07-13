@@ -326,6 +326,41 @@
   line-height: 1.4;
 }
 
+/* Read-only notice inside the edit-expense sheet for an archived trip —
+   same shape as `.ts-form-error` but amber, since it's informational, not
+   a validation failure (Trip Wrap plan task W4). */
+.ts-readonly-notice {
+  margin: 14px 16px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 143, 31, 0.1);
+  color: var(--adm-color-warning);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Tappable "trip finished" banner at the top of Feed/Balance (task W4) —
+   points to the wrap page once the primary CTA on either screen is gone. */
+.ts-archived-banner {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 4px 16px 12px;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 143, 31, 0.12);
+  color: var(--adm-color-warning);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ts-archived-banner:active {
+  opacity: 0.7;
+}
+
 /* Row of small action buttons (share/copy, etc.) inside a list item. */
 .ts-inline-actions {
   display: flex;
@@ -540,4 +575,9 @@
 .ts-trip-check {
   color: var(--adm-color-primary);
   font-size: 20px;
+}
+
+/* Muted title for a finished trip's row (task W4) — subtle, no separate row style. */
+.ts-trip-title--archived {
+  color: var(--ts-hint);
 }
