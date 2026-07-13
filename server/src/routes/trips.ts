@@ -14,6 +14,7 @@ import type {
   BalancesResponse,
   CreateTripResponse,
   ExpenseWithShares,
+  ExportTripResponse,
   InsightsResponse,
   TripDetail,
   TripJoinInfo,
@@ -25,11 +26,15 @@ import { z } from 'zod';
 
 import { db, schema } from '../db/index.js';
 import { getTripBalances } from '../lib/balances.js';
+import { resolveBotLocale } from '../lib/botMessages.js';
+import { sendBotMessage } from '../lib/botSend.js';
 import { AppError } from '../lib/errors.js';
 import { createExpense, createSettlement } from '../lib/expenses.js';
 import { getTripInsights } from '../lib/insights.js';
 import { getTripMembers } from '../lib/members.js';
 import { notifyExpenseCreated, notifySettlementCreated } from '../lib/notify.js';
+import { buildTripSummaryMessage } from '../lib/summary.js';
+import { getLinkedChats } from '../lib/tripChats.js';
 import {
   buildInviteLink,
   getTripOrThrow,
@@ -279,6 +284,45 @@ tripsRouter.get('/:id/insights', (c) => {
   const trip = requireMembership(tripId, user.id);
 
   const response: InsightsResponse = getTripInsights(tripId, trip.baseCurrency);
+  return c.json(response);
+});
+
+// POST /api/trips/:id/export — Export & Group Nudges plan T5. Posts the same
+// summary `/summary` sends (see lib/summary.ts) to the trip's linked group
+// chat(s) if any, else DMs the requesting user (who has always `/start`-ed
+// the bot). Unlike T4's nudges this awaits the send — the user explicitly
+// asked for it and needs to know whether it actually went out.
+tripsRouter.post('/:id/export', async (c) => {
+  const user = c.get('user');
+  const tripId = c.req.param('id');
+  const trip = requireMembership(tripId, user.id);
+
+  const botToken = process.env.BOT_TOKEN;
+  if (!botToken) {
+    throw new AppError(502, 'export_failed', 'Bot is not configured — export cannot be delivered');
+  }
+
+  const locale = resolveBotLocale(user.lang);
+  const html = buildTripSummaryMessage(trip, locale);
+
+  const linkedChats = getLinkedChats(tripId);
+  if (linkedChats.length > 0) {
+    const results = await Promise.all(
+      linkedChats.map((chat) => sendBotMessage(botToken, chat.chatId, html)),
+    );
+    if (results.some(Boolean)) {
+      const response: ExportTripResponse = { delivered: 'group' };
+      return c.json(response);
+    }
+    // Every linked chat send failed (e.g. all auto-unlinked mid-flight) — fall through to DM.
+  }
+
+  const dmDelivered = await sendBotMessage(botToken, user.id, html);
+  if (!dmDelivered) {
+    throw new AppError(502, 'export_failed', 'Could not deliver the trip export');
+  }
+
+  const response: ExportTripResponse = { delivered: 'dm' };
   return c.json(response);
 });
 

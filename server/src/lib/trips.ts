@@ -11,6 +11,7 @@ import { db, schema } from '../db/index.js';
 import { AppError } from './errors.js';
 import { getTripExpensesPage } from './expenses.js';
 import { getTripMembers } from './members.js';
+import { getLinkedChats } from './tripChats.js';
 
 type TripRow = typeof schema.trips.$inferSelect;
 
@@ -95,6 +96,10 @@ export function toTripDetail(
     createdAt: trip.createdAt,
     archivedAt: trip.archivedAt,
     members: getTripMembers(trip.id),
+    linkedChats: getLinkedChats(trip.id).map((chat) => ({
+      chatId: chat.chatId,
+      title: chat.chatTitle,
+    })),
     expenses: expensesPage.items,
     expensesNextCursor: expensesPage.nextCursor,
     inviteLink: buildInviteLink(trip.inviteCode),

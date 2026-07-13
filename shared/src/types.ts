@@ -78,11 +78,24 @@ export interface TripMemberView {
 }
 
 /**
+ * A trip's Telegram group-chat binding, as surfaced in trip detail — Export
+ * & Group Nudges plan (`docs/EXPORT_NUDGES_PLAN.md`) task T5. Lets Settings
+ * show "linked to <group>"; `title` mirrors the DB's best-effort
+ * `chat_title` and is `null` when Telegram never gave one.
+ */
+export interface LinkedChat {
+  chatId: number;
+  title: string | null;
+}
+
+/**
  * Full trip detail — `GET /api/trips/:id`, `POST /api/trips/join`, and
  * `PATCH /api/trips/:id` all return this shape (Phase 3).
  */
 export interface TripDetail extends Trip {
   members: TripMemberView[];
+  /** Group chats linked via `/link` (T3) — empty when nobody has linked one yet. */
+  linkedChats: LinkedChat[];
   /**
    * Non-deleted expenses, `spentOn` desc (ties broken by `createdAt` then
    * `id`, both desc, for a fully deterministic order) — Phase 4. Lightly
@@ -323,6 +336,17 @@ export interface CreateSettlementRequest {
   spentOn?: string;
   rateToBase?: number;
   rateOverridden?: boolean;
+}
+
+/**
+ * `POST /api/trips/:id/export` response — Export & Group Nudges plan
+ * (`docs/EXPORT_NUDGES_PLAN.md`) task T5. `'group'` when the summary was
+ * posted to at least one linked chat; `'dm'` when it went to the requesting
+ * user's private chat with the bot instead (no linked chat, or every linked
+ * chat send failed).
+ */
+export interface ExportTripResponse {
+  delivered: 'group' | 'dm';
 }
 
 /** `GET /api/me` response — the authenticated user + the trips they belong to. */
