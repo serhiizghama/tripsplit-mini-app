@@ -259,13 +259,9 @@
   line-height: 1.4;
 }
 
-/* Custom split: auto (unlocked) share values render muted so it's clear which
-   amounts you typed vs which the app is filling in; the total row shows a green
-   "adds up" / red over/under indicator. */
-.ts-share-auto .adm-input-element {
-  color: var(--ts-hint);
-}
-
+/* Custom split: auto (unlocked) shares show as the input's grey placeholder,
+   typed values as real text; the total row shows a green "adds up" / red
+   over/under indicator. */
 .ts-split-ok {
   color: var(--ts-positive);
 }

@@ -542,22 +542,32 @@ export function AddExpenseSheet() {
             <List mode="card" style={{ marginTop: 8 }}>
               {members.map((member) => {
                 const locked = member.id in customShares;
-                const displayRaw = locked
-                  ? (customShares[member.id] ?? '')
-                  : amountMinor === undefined
-                    ? ''
-                    : minorToAmountInput(derivedShares[member.id] ?? 0, currency);
+                // Auto shares render as the PLACEHOLDER, not the value — the
+                // field stays genuinely empty, so typing starts fresh instead
+                // of appending to the derived number, and clearing a locked
+                // field falls back to the grey hint rather than "un-deletable"
+                // text.
+                const autoHint =
+                  amountMinor === undefined
+                    ? '0.00'
+                    : formatAmountForDisplay(
+                        minorToAmountInput(derivedShares[member.id] ?? 0, currency),
+                      );
                 return (
                   <List.Item
                     key={member.id}
                     extra={
                       <div style={{ width: 110 }}>
                         <Input
-                          className={locked ? 'ts-nums' : 'ts-nums ts-share-auto'}
+                          className="ts-nums"
                           inputMode="decimal"
-                          placeholder="0.00"
+                          placeholder={locked ? '0.00' : autoHint}
                           style={{ '--text-align': 'right' }}
-                          value={formatAmountForDisplay(displayRaw)}
+                          value={
+                            locked
+                              ? formatAmountForDisplay(customShares[member.id] ?? '')
+                              : ''
+                          }
                           onChange={(value) => {
                             const raw = sanitizeAmountInput(value);
                             setCustomShares((prev) => {
