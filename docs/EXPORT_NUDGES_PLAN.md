@@ -1,5 +1,9 @@
 # Export & Group Nudges — implementation plan
 
+> **Status: implemented.** All eight tasks below landed (see git history from
+> `feat(db): add trip_chats table…` onward). This file is kept as the design
+> record; the user-facing summary lives in README.md and FAST_FOLLOW.md.
+
 Two post-MVP backlog items from FAST_FOLLOW.md, implemented together because
 they share all their infrastructure (bot delivery, summary formatting,
 trip↔chat binding):

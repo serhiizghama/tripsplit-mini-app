@@ -26,6 +26,15 @@ README covers the repo itself; that file covers the product.
 > acceptance run passed on both phones." See its own "What's already done
 > vs what's yours" section for the exact line between the two.
 
+> **Post-MVP:** two backlog items from
+> [docs/FAST_FOLLOW.md](./docs/FAST_FOLLOW.md) are implemented — **group-chat
+> nudges** (add the bot to the trip's Telegram group and send
+> `/link <inviteCode>` there; expenses and settlements get announced, and
+> `/summary` posts totals on demand) and **export** ("Share summary" on the
+> Balance screen posts the same summary to the linked chat, or DMs it to you
+> if no chat is linked). Design record:
+> [docs/EXPORT_NUDGES_PLAN.md](./docs/EXPORT_NUDGES_PLAN.md).
+
 ## Monorepo layout
 
 npm workspaces, three packages:

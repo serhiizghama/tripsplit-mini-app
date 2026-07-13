@@ -64,16 +64,20 @@ freely based on what the field test actually surfaces. Check items off (or
 re-order them) as they get picked up; add new rows for anything from the
 friction log that lands here instead of as a hotfix.
 
-- [ ] **Bot chat nudges** — post balance summaries / "you were added an
+- [x] **Bot chat nudges** — post balance summaries / "you were added an
       expense" into the group chat (Tallycents' social-pressure feature;
-      TG-native superpower).
+      TG-native superpower). Done — see
+      [EXPORT_NUDGES_PLAN.md](./EXPORT_NUDGES_PLAN.md): `/link <code>` in the
+      group, then expenses/settlements are announced; `/summary` posts totals.
 - [ ] **Natural-language quick add** — reply "taxi 250 thb" to the bot
       (Splitsheet pattern).
 - [ ] **Sticky manual rate** — an overridden rate persists for later
       expenses in that currency (Settle Up pattern).
 - [ ] **Percentages/shares split modes**; per-member default weights
       (couples/families).
-- [ ] **Export** — formatted text summary posted to chat.
+- [x] **Export** — formatted text summary posted to chat. Done — "Share
+      summary" on the Balance screen posts to the linked group chat, or DMs
+      the requester when no chat is linked.
 - [ ] **Per-currency "unconverted" balance view** (Spliit #412 demand).
 - [ ] **Dark theme** via `themeParams`; multiple parallel trips UI; receipt
       photo attachments; receipt OCR (last — even the big three do it
