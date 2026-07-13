@@ -37,9 +37,19 @@ export function Chip({
   );
 }
 
-/** Flex-wrap container for a row of `Chip`s. */
-export function ChipRow({ children }: { children: ReactNode }) {
-  return <div className="ts-chip-row">{children}</div>;
+/** Flex-wrap container for a row of `Chip`s. `centered` — symmetric padding for a row that sits alone in a card. */
+export function ChipRow({
+  children,
+  centered,
+}: {
+  children: ReactNode;
+  centered?: boolean;
+}) {
+  return (
+    <div className={centered ? 'ts-chip-row ts-chip-row--centered' : 'ts-chip-row'}>
+      {children}
+    </div>
+  );
 }
 
 /** Fixed 4-column grid container for `CategoryTile`s. */
@@ -166,11 +176,7 @@ export function Sheet({
       bodyClassName="ts-sheet"
     >
       <div className="ts-sheet-grabber" />
-      <NavBar
-        className="ts-sheet-nav"
-        backIcon={<CloseOutline />}
-        onBack={onClose}
-      >
+      <NavBar className="ts-sheet-nav" backIcon={<CloseOutline />} onBack={onClose}>
         {title}
       </NavBar>
       <div className="ts-sheet-body">{children}</div>

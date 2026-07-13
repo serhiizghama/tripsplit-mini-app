@@ -80,7 +80,7 @@ function MemberChipRow({
   onSelect: (userId: number) => void;
 }) {
   return (
-    <ChipRow>
+    <ChipRow centered>
       {members.map((member) => (
         <Chip
           key={member.id}
