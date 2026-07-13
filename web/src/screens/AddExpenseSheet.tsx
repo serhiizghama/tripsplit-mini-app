@@ -44,6 +44,7 @@ import {
 } from '../components/ui';
 import { useFormatters, useT } from '../i18n';
 import { getLastCurrency, setLastCurrency } from '../lib/lastCurrency';
+import { deriveCustomShares } from '../lib/customSplit';
 import {
   computeAmountBaseMinor,
   formatAmountForDisplay,
@@ -215,11 +216,26 @@ export function AddExpenseSheet() {
       ? computeAmountBaseMinor(amountMinor, currency, baseCurrency, parsedRateForPreview)
       : undefined;
 
-  const customShareTotal = members.reduce(
-    (sum, member) =>
-      sum + (parseAmountToMinor(customShares[member.id] ?? '', currency) ?? 0),
-    0,
-  );
+  // Custom split (derived model): `customShares` holds only the values the user
+  // typed (locked); everyone else auto-splits the remainder. Display values,
+  // the total, and the submitted shares all come from `derivedShares`, so a
+  // locked field is never overwritten and — as long as one member is still
+  // auto — the shares always sum to the amount exactly.
+  const lockedMinor: Record<number, number> = {};
+  for (const [id, raw] of Object.entries(customShares)) {
+    if (raw.trim() === '') continue; // empty = auto, not a locked 0
+    lockedMinor[Number(id)] = parseAmountToMinor(raw, currency) ?? 0;
+  }
+  const derivedShares =
+    amountMinor !== undefined
+      ? deriveCustomShares(
+          members.map((m) => m.id),
+          amountMinor,
+          lockedMinor,
+        )
+      : {};
+  const customShareTotal = Object.values(derivedShares).reduce((sum, s) => sum + s, 0);
+  const splitDiff = amountMinor !== undefined ? customShareTotal - amountMinor : 0;
 
   function markTouched() {
     if (!formTouched) setFormTouched(true);
@@ -241,22 +257,9 @@ export function AddExpenseSheet() {
   function handleSplitModeChange(mode: SplitMode) {
     setSplitMode(mode);
     markTouched();
-    if (
-      mode === 'custom' &&
-      Object.keys(customShares).length === 0 &&
-      amountMinor &&
-      members.length > 0
-    ) {
-      // Convenience prefill: an equal split as a starting point to edit from.
-      // The server independently validates the final sum on submit.
-      const base = Math.floor(amountMinor / members.length);
-      const remainder = amountMinor - base * members.length;
-      const prefill: Record<number, string> = {};
-      members.forEach((member, i) => {
-        prefill[member.id] = minorToAmountInput(base + (i < remainder ? 1 : 0), currency);
-      });
-      setCustomShares(prefill);
-    }
+    // No prefill needed: with nothing locked, the derived model already shows
+    // an equal split as the starting point, and each field the user types locks
+    // that member while the rest auto-rebalance to the remainder.
   }
 
   function buildRequestBody(): CreateExpenseRequest | undefined {
@@ -288,7 +291,7 @@ export function AddExpenseSheet() {
       }
       shares = members.map((member) => ({
         userId: member.id,
-        shareMinor: parseAmountToMinor(customShares[member.id] ?? '', currency) ?? 0,
+        shareMinor: derivedShares[member.id] ?? 0,
       }));
       if (customShareTotal !== amountMinor) {
         setErrorMessage(
@@ -526,39 +529,57 @@ export function AddExpenseSheet() {
 
           {splitMode === 'custom' && (
             <List mode="card" style={{ marginTop: 8 }}>
-              {members.map((member) => (
-                <List.Item
-                  key={member.id}
-                  extra={
-                    <div style={{ width: 110 }}>
-                      <Input
-                        className="ts-nums"
-                        inputMode="decimal"
-                        placeholder="0.00"
-                        style={{ '--text-align': 'right' }}
-                        value={formatAmountForDisplay(customShares[member.id] ?? '')}
-                        onChange={(value) => {
-                          setCustomShares((prev) => ({
-                            ...prev,
-                            [member.id]: sanitizeAmountInput(value),
-                          }));
-                          markTouched();
-                        }}
-                      />
-                    </div>
-                  }
-                >
-                  {member.firstName}
-                </List.Item>
-              ))}
+              {members.map((member) => {
+                const locked = member.id in customShares;
+                const displayRaw = locked
+                  ? (customShares[member.id] ?? '')
+                  : amountMinor === undefined
+                    ? ''
+                    : minorToAmountInput(derivedShares[member.id] ?? 0, currency);
+                return (
+                  <List.Item
+                    key={member.id}
+                    extra={
+                      <div style={{ width: 110 }}>
+                        <Input
+                          className={locked ? 'ts-nums' : 'ts-nums ts-share-auto'}
+                          inputMode="decimal"
+                          placeholder="0.00"
+                          style={{ '--text-align': 'right' }}
+                          value={formatAmountForDisplay(displayRaw)}
+                          onChange={(value) => {
+                            const raw = sanitizeAmountInput(value);
+                            setCustomShares((prev) => {
+                              const next = { ...prev };
+                              // Clearing a field un-locks the member so they
+                              // rejoin the auto-split; typing locks them.
+                              if (raw === '') delete next[member.id];
+                              else next[member.id] = raw;
+                              return next;
+                            });
+                            markTouched();
+                          }}
+                        />
+                      </div>
+                    }
+                  >
+                    {member.firstName}
+                  </List.Item>
+                );
+              })}
               <List.Item
                 description={
-                  amountMinor !== undefined
-                    ? t('expense.assignedTotal', {
-                        assigned: money(customShareTotal, currency),
-                        total: money(amountMinor, currency),
-                      })
-                    : undefined
+                  amountMinor === undefined ? undefined : (
+                    <span className={splitDiff === 0 ? 'ts-split-ok' : 'ts-split-warn'}>
+                      {splitDiff === 0
+                        ? t('expense.splitBalanced')
+                        : splitDiff > 0
+                          ? t('expense.splitOver', { amount: money(splitDiff, currency) })
+                          : t('expense.splitUnder', {
+                              amount: money(-splitDiff, currency),
+                            })}
+                    </span>
+                  )
                 }
               >
                 {t('expense.totalLabel')}

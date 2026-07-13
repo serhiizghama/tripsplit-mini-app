@@ -249,6 +249,21 @@
   line-height: 1.4;
 }
 
+/* Custom split: auto (unlocked) share values render muted so it's clear which
+   amounts you typed vs which the app is filling in; the total row shows a green
+   "adds up" / red over/under indicator. */
+.ts-share-auto .adm-input-element {
+  color: var(--ts-hint);
+}
+
+.ts-split-ok {
+  color: var(--ts-positive);
+}
+
+.ts-split-warn {
+  color: var(--ts-negative);
+}
+
 /* --- Form cards used inside the modal sheets --- */
 .ts-card {
   margin: 0 16px;
@@ -300,7 +315,6 @@
   font-size: 14px;
   line-height: 1.4;
 }
-
 
 /* Row of small action buttons (share/copy, etc.) inside a list item. */
 .ts-inline-actions {
