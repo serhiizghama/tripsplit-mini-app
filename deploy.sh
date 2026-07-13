@@ -72,10 +72,15 @@ rsync -az --delete \
   web/dist/ "${DEPLOY_TARGET}:${DEPLOY_PATH}/web/dist/"
 
 echo "==> Rsyncing server -> ${DEPLOY_TARGET}:${DEPLOY_PATH}/server"
+# NB: `data` and `logs` are excluded so --delete can NEVER touch the live
+# SQLite DB (default DB_PATH is ./data/tripsplit.db relative to server/) —
+# excluded patterns are protected from deletion unless --delete-excluded.
 rsync -az --delete \
   --exclude ".env" \
   --exclude "node_modules" \
   --exclude "src" \
+  --exclude "data" \
+  --exclude "logs" \
   -e "ssh -p ${DEPLOY_SSH_PORT}" \
   server/dist/ server/package.json \
   "${DEPLOY_TARGET}:${DEPLOY_PATH}/server/"
