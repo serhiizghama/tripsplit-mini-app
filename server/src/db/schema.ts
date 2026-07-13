@@ -108,6 +108,24 @@ export const expenseShares = sqliteTable(
   (table) => [primaryKey({ columns: [table.expenseId, table.userId] })],
 );
 
+// trip↔group-chat binding, created by `/link` in the bot. A trip may be
+// linked to multiple chats; a chat may host multiple trips.
+export const tripChats = sqliteTable(
+  'trip_chats',
+  {
+    tripId: text('trip_id')
+      .notNull()
+      .references(() => trips.id),
+    chatId: integer('chat_id').notNull(), // Telegram chat id (groups are negative)
+    chatTitle: text('chat_title'), // best-effort group title, for display in Settings
+    linkedBy: integer('linked_by')
+      .notNull()
+      .references(() => users.id), // who ran /link
+    linkedAt: text('linked_at').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.tripId, table.chatId] })],
+);
+
 export const rates = sqliteTable(
   'rates',
   {

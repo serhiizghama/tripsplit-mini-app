@@ -15,6 +15,13 @@
       "when": 1783408343250,
       "tag": "0001_condemned_justice",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1783920751528,
+      "tag": "0002_flippant_spiral",
+      "breakpoints": true
     }
   ]
 }
