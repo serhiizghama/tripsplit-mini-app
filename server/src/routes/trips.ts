@@ -29,6 +29,7 @@ import { AppError } from '../lib/errors.js';
 import { createExpense, createSettlement } from '../lib/expenses.js';
 import { getTripInsights } from '../lib/insights.js';
 import { getTripMembers } from '../lib/members.js';
+import { notifyExpenseCreated, notifySettlementCreated } from '../lib/notify.js';
 import {
   buildInviteLink,
   getTripOrThrow,
@@ -309,6 +310,7 @@ tripsRouter.post('/:id/settlements', async (c) => {
     rateOverriddenInput: body.rateOverridden,
   });
 
+  void notifySettlementCreated(trip, user, settlement);
   return c.json(settlement, 201);
 });
 
@@ -339,6 +341,7 @@ tripsRouter.post('/:id/expenses', async (c) => {
     rateOverriddenInput: body.rateOverridden,
   });
 
+  void notifyExpenseCreated(trip, user, expense);
   return c.json(expense, 201);
 });
 

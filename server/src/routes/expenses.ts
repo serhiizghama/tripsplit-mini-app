@@ -16,6 +16,7 @@ import {
   updateExpense,
 } from '../lib/expenses.js';
 import { AppError } from '../lib/errors.js';
+import { notifyExpenseDeleted, notifyExpenseUpdated } from '../lib/notify.js';
 import { requireMembership } from '../lib/trips.js';
 import { currencyCodeSchema, validateJsonBody } from '../lib/validate.js';
 
@@ -61,6 +62,7 @@ expensesRouter.patch('/:id', async (c) => {
 
   const body: UpdateExpenseRequest = await validateJsonBody(c, updateExpenseSchema);
   const updated = updateExpense(existing, trip.baseCurrency, body);
+  void notifyExpenseUpdated(trip, user, updated);
   return c.json(updated);
 });
 
@@ -71,9 +73,12 @@ expensesRouter.delete('/:id', (c) => {
   const user = c.get('user');
   const expenseId = c.req.param('id');
   const existing = getExpenseRowOrThrow(expenseId);
-  requireMembership(existing.tripId, user.id);
+  const trip = requireMembership(existing.tripId, user.id);
 
   softDeleteExpense(expenseId);
+  // `existing` is read BEFORE the delete — softDeleteExpense only stamps
+  // deletedAt, so amount/currency/description are still the pre-delete values.
+  void notifyExpenseDeleted(trip, user, existing);
   return c.body(null, 204);
 });
 
